@@ -1,4 +1,5 @@
-# Chatty
+# Twittie
+
 2110315 Parallel and Distributed Systems Miniproject
 
 running
@@ -15,3 +16,4 @@ django
 
 React
 https://www.tutorialspoint.com/reactjs/reactjs_environment_setup.htm
+
