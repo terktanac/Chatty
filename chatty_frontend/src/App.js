@@ -162,7 +162,11 @@ class App extends Component {
   renderChat() {
     return (
       <GiftedChat
-        user={this.chatUser}
+        user = {
+          {
+            id: 1,
+          }
+        }
         messages={this.state.messages.slice().reverse()}
         onSend={(messages) => this.onSend(messages)}
       />
