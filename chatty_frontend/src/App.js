@@ -115,13 +115,43 @@ class App extends Component {
       // TODO set from database
       messages: [
         {
-          id: 1,
-          text: 'Hello developer',
+          id: 4,
+          text: "ORA ORA ORA",
           createdAt: new Date(),
+          status: true,
           user: {
             id: 2,
-            name: 'React',
-            avatar: '../userPic/logo192.png',
+            name: "Jotaro",
+          },
+        },
+        {
+          id: 3,
+          text: "MUDA MUDA MUDA",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 2,
+          text: "OHOH",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 1,
+          text: "DIO",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 2,
+            name: "Jotaro",
           },
         },
       ],
@@ -177,6 +207,7 @@ class App extends Component {
         user={this.state.user}
         messages={this.state.messages}
         onSend={(messages) => this.onSend(messages)}
+        renderAvatarOnTop={true}
       />
     );
   }
