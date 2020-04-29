@@ -76,11 +76,10 @@ class App extends Component {
       channelName:'',
       isSignIn: false,
       isOpenPopup: false,
-      name: "",
       messages: [],
       user: {
         id: -1,
-        name: ""
+        name: "",
       },
       rooms: [],
     };
@@ -110,12 +109,14 @@ class App extends Component {
   signIn() {
     console.log("Sign in");
     //TODO generate user id
-    if(this.state.name !== '')
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
+    if(this.state.user.name !== '')
+    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name} });
   }
 
   getName(e) {
-    this.setState({ name: e.target.value });
+    let aUser = this.state.user
+    aUser.name = e.target.value
+    this.setState({ user: aUser});
   }
 
   getNewRoomName(e) {
@@ -296,11 +297,13 @@ class App extends Component {
     );
   }
 
+  setChannel(e) {
+    this.setState({channelName:e.target.id})
+  }
+
   renderAChannel(room) {
     return (
-      <ListItem button onClick={() => {
-
-      }}>
+      <ListItem id={room.name} button onClick={(e) => this.setChannel(e)}>
           <ListItemAvatar>
             <Avatar>{room.name[0]}</Avatar>
           </ListItemAvatar>
@@ -314,7 +317,7 @@ class App extends Component {
       <AppBar position="static" color="default">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            Default channel
+            {('#'+this.state.channelName) && this.state.channelName !== ''}
           </Typography>
         </Toolbar>
       </AppBar>
