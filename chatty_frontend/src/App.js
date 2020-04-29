@@ -73,6 +73,7 @@ class App extends Component {
     super();
     this.state = {
       newRoomName:'',
+      channelName:'',
       isSignIn: false,
       isOpenPopup: false,
       name: "",
@@ -109,6 +110,7 @@ class App extends Component {
   signIn() {
     console.log("Sign in");
     //TODO generate user id
+    if(this.state.name !== '')
     this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
   }
 
@@ -265,7 +267,9 @@ class App extends Component {
 
   renderAChannel(room) {
     return (
-      <ListItem button>
+      <ListItem button onClick={() => {
+
+      }}>
           <ListItemAvatar>
             <Avatar>{room.name[0]}</Avatar>
           </ListItemAvatar>
