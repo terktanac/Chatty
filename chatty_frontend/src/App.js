@@ -72,16 +72,18 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      newRoomName:'',
+      newchannelName:'',
+      channelName:'',
+      currentChannel:'',
       isSignIn: false,
       isOpenPopup: false,
-      name: "",
       messages: [],
       user: {
         id: -1,
-        name: ""
+        name: "",
+        joinedChannel: new Set([]),
       },
-      rooms: [],
+      channels: [],
     };
   }
 
@@ -95,29 +97,32 @@ class App extends Component {
 
   addChannel() {
     this.setState({isOpenPopup:false})
-    if(this.state.newRoomName !== '') {
-      let allRooms = this.state.rooms
-      let lastId = allRooms[allRooms.length-1].id
-      allRooms.push({
+    if(this.state.newchannelName !== '') {
+      let allchannels = this.state.channels
+      let lastId = allchannels[allchannels.length-1].id
+      allchannels.push({
         id: lastId + 1,
-        name: this.state.newRoomName,
+        name: this.state.newchannelName,
       })
-      //tell server about new room
+      //tell server about new channel
     }
   }
 
   signIn() {
     console.log("Sign in");
     //TODO generate user id
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
+    if(this.state.user.name !== '')
+    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name, joinedChannel: new Set([])} });
   }
 
   getName(e) {
-    this.setState({ name: e.target.value });
+    let aUser = this.state.user
+    aUser.name = e.target.value
+    this.setState({ user: aUser});
   }
 
-  getNewRoomName(e) {
-    this.setState({ newRoomName: e.target.value });
+  getNewchannelName(e) {
+    this.setState({ newchannelName: e.target.value });
   }
   
   signOut() {
@@ -140,19 +145,49 @@ class App extends Component {
   componentDidMount() {
     this.setState({
       // TODO set from database
-      messages: [
-        {
-          id: 1,
-          text: 'Hello developer',
-          createdAt: new Date(),
-          user: {
-            id: 2,
-            name: 'React',
-            avatar: '../userPic/logo192.png',
-          },
-        },
-      ],
-      rooms: [
+      // messages: [
+      //   {
+      //     id: 4,
+      //     text: "ORA ORA ORA",
+      //     createdAt: new Date(),
+      //     status: true,
+      //     user: {
+      //       id: 2,
+      //       name: "Jotaro",
+      //     },
+      //   },
+      //   {
+      //     id: 3,
+      //     text: "MUDA MUDA MUDA",
+      //     createdAt: new Date(),
+      //     status: false,
+      //     user: {
+      //       id: 3,
+      //       name: "Dio",
+      //     },
+      //   },
+      //   {
+      //     id: 2,
+      //     text: "OHOH",
+      //     createdAt: new Date(),
+      //     status: false,
+      //     user: {
+      //       id: 3,
+      //       name: "Dio",
+      //     },
+      //   },
+      //   {
+      //     id: 1,
+      //     text: "DIO",
+      //     createdAt: new Date(),
+      //     status: false,
+      //     user: {
+      //       id: 2,
+      //       name: "Jotaro",
+      //     },
+      //   },
+      // ],
+      channels: [
         {
           id : 1,
           name: 'Parallel', 
@@ -210,7 +245,7 @@ class App extends Component {
         <DialogContent>
           <DialogContentText component="div">
             <Box textAlign="center" color="primary.main">
-              Please enter the name of new room
+              Please enter the name of new channel
             </Box>
           </DialogContentText>
           <form id="form" autoComplete="off" noValidate>
@@ -223,7 +258,7 @@ class App extends Component {
               autoComplete="off"
               label="name"
               fullWidth
-              onChange={(e) => this.getNewRoomName(e)}
+              onChange={(e) => this.getNewchannelName(e)}
             />
           </form>
         </DialogContent>
@@ -251,6 +286,7 @@ class App extends Component {
         user={this.state.user}
         messages={this.state.messages}
         onSend={(messages) => this.onSend(messages)}
+        renderAvatarOnTop={true}
       />
     );
   }
@@ -258,18 +294,48 @@ class App extends Component {
   renderChannels() {
     return (
       <List>
-        {this.state.rooms.map(this.renderAChannel)}
+        {this.state.channels.map(this.renderAChannel)}
       </List>
     );
   }
 
-  renderAChannel(room) {
+  joinChannel = () => {
+    let aUser = this.state.user
+    aUser.joinedChannel.add(this.state.currentChannel)
+    //get data from backend
+    this.setState({
+      user:aUser
+    })
+  }
+  
+  leaveChannel = () => {
+    let aUser = this.state.user
+    aUser.joinedChannel.delete(this.state.currentChannel)
+    this.setState({
+      user:aUser
+    })
+  }
+
+  enterChannel = (channel) => {
+    if(this.state.user.joinedChannel.has(channel.id)) {
+      //get data from backend
+    }
+    this.setState({
+      currentChannel:channel.id,
+      channelName:channel.name,
+    })
+    
+    
+  }
+
+  renderAChannel = (channel) => {
     return (
-      <ListItem button>
+      <ListItem button onClick={() => this.enterChannel(channel)}>
           <ListItemAvatar>
-            <Avatar>{room.name[0]}</Avatar>
+            <Avatar>{channel.name[0]}</Avatar>
           </ListItemAvatar>
-          <ListItemText primary={room.name} />
+          <ListItemText primary={'#' + channel.name} />
+          <p>{this.state.user.joinedChannel.has(channel.id) ? '#' + channel.name + '(joined)' : ''}</p>
         </ListItem>
     )
   }
@@ -279,8 +345,10 @@ class App extends Component {
       <AppBar position="static" color="default">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            Default channel
+            {this.state.channelName !== '' ? '#' + this.state.channelName : ''}
           </Typography>
+          {!this.state.user.joinedChannel.has(this.state.currentChannel) && this.state.currentChannel !== '' && (<Button variant="contained" color="primary" onClick={() => this.joinChannel()}>Join</Button>)}
+          {(this.state.user.joinedChannel.has(this.state.currentChannel)) && (<Button variant="contained" color="primary" onClick={() => this.leaveChannel()}>Leave</Button>)}
         </Toolbar>
       </AppBar>
     );
