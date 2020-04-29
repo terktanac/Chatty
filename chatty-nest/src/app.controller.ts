@@ -15,17 +15,10 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 4000 });
 
 //wait client data
-wss.on('connection', function connection(ws) { 
-  ws.on('message', function incoming(message) {
-   
-    console.log('received: %s', message);
-  });
+wss.on('connection', function connection(ws) {
+  ws.on('message',function(message) {
 
-//close browser
-ws.on('close', function close() {
-  
-    console.log('disconnected');
-  });
+  })
+  ws.send("hello")
 
-//send data
-ws.send('init message to client');
+});

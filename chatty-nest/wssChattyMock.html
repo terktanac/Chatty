@@ -1,0 +1,14 @@
+<html>
+
+    <title>Chatty Mock</title>
+
+    <script>
+        var socket = new WebSocket("ws://localhost:4000")
+
+        socket.onmessage = (event) => {
+            console.log(event)
+            console.log(event.data)
+        }
+
+    </script>
+</html>
