@@ -186,9 +186,16 @@ class App extends Component {
       <List>
         <ListItem button>
           <ListItemAvatar>
-            <Avatar>D</Avatar>
+            <Avatar p={10}>D</Avatar>
           </ListItemAvatar>
           <ListItemText primary="Default" />
+        </ListItem>
+
+        <ListItem button>
+          <ListItemAvatar>
+            <Avatar p={10}>D</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary="GGG" />
         </ListItem>
       </List>
     );
