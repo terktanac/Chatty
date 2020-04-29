@@ -72,18 +72,41 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
+      newRoomName:'',
       isSignIn: false,
+      isOpenPopup: false,
       name: "",
       messages: [],
       user: {
         id: -1,
         name: ""
-      }
+      },
+      rooms: [],
     };
   }
 
-  signIn() {
+  setOpenPopUp() {
+    this.setState({isOpenPopup:true})
+  }
 
+  setClosePopUp() {
+    this.setState({isOpenPopup:false})
+  }
+
+  addChannel() {
+    this.setState({isOpenPopup:false})
+    if(this.state.newRoomName !== '') {
+      let allRooms = this.state.rooms
+      let lastId = allRooms[allRooms.length-1].id
+      allRooms.push({
+        id: lastId + 1,
+        name: this.state.newRoomName,
+      })
+      //tell server about new room
+    }
+  }
+
+  signIn() {
     console.log("Sign in");
     //TODO generate user id
     this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
@@ -93,6 +116,10 @@ class App extends Component {
     this.setState({ name: e.target.value });
   }
 
+  getNewRoomName(e) {
+    this.setState({ newRoomName: e.target.value });
+  }
+  
   signOut() {
     //firebase.auth().signOut();
     console.log("Sign out");
@@ -109,7 +136,7 @@ class App extends Component {
 
     console.log("Save message");
   }
-
+  
   componentDidMount() {
     this.setState({
       // TODO set from database
@@ -155,6 +182,16 @@ class App extends Component {
           },
         },
       ],
+      rooms: [
+        {
+          id : 1,
+          name: 'Parallel', 
+        },
+        {
+          id : 2,
+          name: 'Network', 
+        },
+      ]
     });
   }
 
@@ -197,6 +234,43 @@ class App extends Component {
     );
   }
 
+  renderAddChannelPopUp() {
+    return (
+      <Dialog open={this.state.isOpenPopup} >
+        <DialogContent>
+          <DialogContentText component="div">
+            <Box textAlign="center" color="primary.main">
+              Please enter the name of new room
+            </Box>
+          </DialogContentText>
+          <form id="form" autoComplete="off" noValidate>
+            <TextField
+              tabIndex="1"
+              autoFocus
+              variant="outlined"
+              margin="dense"
+              id="name"
+              autoComplete="off"
+              label="name"
+              fullWidth
+              onChange={(e) => this.getNewRoomName(e)}
+            />
+          </form>
+        </DialogContent>
+        <DialogActions>
+          <Box display="flex" flexDirection="row" alignItems="center" justifyContent="center" width="100%">
+            <Button onClick={() => this.addChannel()} color="primary">
+              OK
+            </Button>
+            <Button onClick={() => this.setClosePopUp()} color="primary">
+              Cancel
+            </Button>
+          </Box>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
   renderSignOutButton() {
     return <Button onClick={() => this.signOut()}>Sign out</Button>;
   }
@@ -215,14 +289,20 @@ class App extends Component {
   renderChannels() {
     return (
       <List>
-        <ListItem button>
-          <ListItemAvatar>
-            <Avatar>D</Avatar>
-          </ListItemAvatar>
-          <ListItemText primary="Default" />
-        </ListItem>
+        {this.state.rooms.map(this.renderAChannel)}
       </List>
     );
+  }
+
+  renderAChannel(room) {
+    return (
+      <ListItem button>
+          <ListItemAvatar>
+            <Avatar>{room.name[0]}</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={room.name} />
+        </ListItem>
+    )
   }
 
   renderChatHeader() {
@@ -255,6 +335,9 @@ class App extends Component {
           <Typography variant="h6" color="inherit">
             Channels
           </Typography>
+          <Button variant="contained" color="primary" onClick={() => this.setOpenPopUp()}>
+            +
+          </Button>
         </Toolbar>
       </AppBar>
     );
@@ -263,6 +346,7 @@ class App extends Component {
   render() {
     return (
       <div style={styles.container}>
+        {this.renderAddChannelPopUp()}
         {this.renderPopup()}
         <div style={styles.channelList}>
           {this.renderChannelsHeader()}

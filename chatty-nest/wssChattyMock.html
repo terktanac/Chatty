@@ -1,0 +1,37 @@
+<html>
+
+    <title>Chatty Mock</title>
+
+    <div id = "chatty">
+        <input type="text" placeholder="text :" id="text">
+        <button onclick=handleClick()> send </button>
+    </div>
+
+    <script>
+        var socket = new WebSocket("ws://localhost:4000")
+        var user = prompt("your name")
+        function handleClick() {
+            let text = document.getElementById("text").value
+            var sendData = {
+                "type":"message",
+                "data": text
+            }
+            socket.send(JSON.stringify(sendData))
+            
+        }
+
+        socket.onopen = () => {
+            var sendData = {
+                "type":"username",
+                "data": user
+            }
+            socket.send(JSON.stringify(sendData))
+        }
+
+        socket.onmessage = (event) => {
+            //console.log(event)
+            console.log(event.data)
+        }
+        
+    </script>
+</html>

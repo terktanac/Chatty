@@ -15,17 +15,32 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 4000 });
 
 //wait client data
-wss.on('connection', function connection(ws) { 
-  ws.on('message', function incoming(message) {
-   
-    console.log('received: %s', message);
-  });
+wss.on('connection', function connection(ws) {
+  ws.on('message',function(message) {
+    var chat = JSON.parse(message)
+    if (chat.type == 'username')  {
+      ws.username = chat.data
+    }
 
-//close browser
-ws.on('close', function close() {
+    if (chat.type == 'message') {
+      message = `${ws.username} : ${chat.data}`
+      wss.clients.forEach(element => {
+        element.send(message)
+      });
+    }
+
+    
+    //console.log(ws)
+    //console.log("----------------------------------------")
+    //console.log(wss.clients)
   
-    console.log('disconnected');
-  });
+    //storee
+  })
 
-//send data
-ws.send('init message to client');
+
+
+  ws.on('close', function () {
+    console.log("lost"+ws.username)
+  })
+  
+});
