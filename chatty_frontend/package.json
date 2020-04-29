@@ -14,7 +14,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
-    "react-web-gifted-chat": "git+https://github.com/SPRYK/react-web-gifted-chat.git"
+    "react-web-gifted-chat": "git+https://github.com/SPRYK/react-web-gifted-chat.git",
+    "socket.io": "^2.3.0"
   },
   "scripts": {
     "start": "react-scripts start",
