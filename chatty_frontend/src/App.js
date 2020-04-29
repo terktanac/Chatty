@@ -82,17 +82,8 @@ class App extends Component {
     };
   }
 
-  // async signIn() {
-  //   const googleProvider = new firebase.auth.GoogleAuthProvider();
-  //   try {
-  //     await firebase.auth().signInWithPopup(googleProvider);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // }
-
   signIn() {
-    //firebase.auth().signOut();
+
     console.log("Sign in");
     //TODO generate user id
     this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
@@ -108,50 +99,18 @@ class App extends Component {
     this.setState({ isSignIn: false, user: { id:-1, name: "" } });
   }
 
-  // loadMessages() {
-  //   const callback = (snap) => {
-  //     const message = snap.val();
-  //     message.id = snap.key;
-  //     const { messages } = this.state;
-  //     messages.push(message);
-  //     this.setState({ messages });
-  //   };
-  //   firebase
-  //     .database()
-  //     .ref("/messages/")
-  //     .limitToLast(12)
-  //     .on("child_added", callback);
-  // }
-
   onSend(messages=[]) {
-    // for (const message of messages) {
-    //   this.saveMessage(message);
-    // }
     this.setState((previousState) => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }));
   }
 
   saveMessage(message) {
-    // return firebase
-    //   .database()
-    //   .ref("/messages/")
-    //   .push(message)
-    //   .catch(function (error) {
-    //     console.error("Error saving message to Database:", error);
-    //   });
+
     console.log("Save message");
   }
 
   componentDidMount() {
-    // firebase.auth().onAuthStateChanged((user) => {
-    //   if (user) {
-    //     this.setState({ isAuthenticated: true, user });
-    //     this.loadMessages();
-    //   } else {
-    //     this.setState({ isAuthenticated: false, user: {}, messages: [] });
-    //   }
-    // });
     this.setState({
       // TODO set from database
       messages: [
@@ -168,30 +127,6 @@ class App extends Component {
       ],
     });
   }
-
-  // renderPopup() {
-  //   return (
-  //     <Dialog open={!this.state.isAuthenticated}>
-  //       <DialogTitle id="simple-dialog-title">Sign in</DialogTitle>
-  //       <div>
-  //         <List>
-  //           <ListItem button onClick={() => this.signIn()}>
-  //             <ListItemAvatar>
-  //               <Avatar style={{ backgroundColor: "#eee" }}>
-  //                 <img
-  //                   src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-  //                   height="30"
-  //                   alt="G"
-  //                 />
-  //               </Avatar>
-  //             </ListItemAvatar>
-  //             <ListItemText primary="Sign in with Google" />
-  //           </ListItem>
-  //         </List>
-  //       </div>
-  //     </Dialog>
-  //   );
-  // }
 
   renderPopup() {
     return (
@@ -233,10 +168,6 @@ class App extends Component {
   }
 
   renderSignOutButton() {
-    // if (this.state.isAuthenticated) {
-    //   return <Button onClick={() => this.signOut()}>Sign out</Button>;
-    // }
-    // return null;
     return <Button onClick={() => this.signOut()}>Sign out</Button>;
   }
 
