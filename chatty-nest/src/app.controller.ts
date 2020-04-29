@@ -17,19 +17,30 @@ const wss = new WebSocket.Server({ port: 4000 });
 //wait client data
 wss.on('connection', function connection(ws) {
   ws.on('message',function(message) {
-    console.log(message)
+    var chat = JSON.parse(message)
+    if (chat.type == 'username')  {
+      ws.username = chat.data
+    }
+
+    if (chat.type == 'message') {
+      message = `${ws.username} : ${chat.data}`
+      wss.clients.forEach(element => {
+        element.send(message)
+      });
+    }
+
+    
     //console.log(ws)
     //console.log("----------------------------------------")
-    //console.log(wss)
-    
+    //console.log(wss.clients)
+  
     //storee
   })
-  ws.send("hello")
 
 
 
   ws.on('close', function () {
-    console.log("lost"+ws.name)
+    console.log("lost"+ws.username)
   })
   
 });
