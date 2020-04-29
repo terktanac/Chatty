@@ -73,13 +73,13 @@ class App extends Component {
     super();
     this.state = {
       newRoomName:'',
+      channelName:'',
       isSignIn: false,
       isOpenPopup: false,
-      name: "",
       messages: [],
       user: {
         id: -1,
-        name: ""
+        name: "",
       },
       rooms: [],
     };
@@ -109,11 +109,14 @@ class App extends Component {
   signIn() {
     console.log("Sign in");
     //TODO generate user id
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.name} });
+    if(this.state.user.name !== '')
+    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name} });
   }
 
   getName(e) {
-    this.setState({ name: e.target.value });
+    let aUser = this.state.user
+    aUser.name = e.target.value
+    this.setState({ user: aUser});
   }
 
   getNewRoomName(e) {
@@ -142,13 +145,43 @@ class App extends Component {
       // TODO set from database
       messages: [
         {
-          id: 1,
-          text: 'Hello developer',
+          id: 4,
+          text: "ORA ORA ORA",
           createdAt: new Date(),
+          status: true,
           user: {
             id: 2,
-            name: 'React',
-            avatar: '../userPic/logo192.png',
+            name: "Jotaro",
+          },
+        },
+        {
+          id: 3,
+          text: "MUDA MUDA MUDA",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 2,
+          text: "OHOH",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 1,
+          text: "DIO",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 2,
+            name: "Jotaro",
           },
         },
       ],
@@ -251,6 +284,7 @@ class App extends Component {
         user={this.state.user}
         messages={this.state.messages}
         onSend={(messages) => this.onSend(messages)}
+        renderAvatarOnTop={true}
       />
     );
   }
@@ -263,9 +297,13 @@ class App extends Component {
     );
   }
 
+  setChannel(e) {
+    this.setState({channelName:e.target.id})
+  }
+
   renderAChannel(room) {
     return (
-      <ListItem button>
+      <ListItem id={room.name} button onClick={(e) => this.setChannel(e)}>
           <ListItemAvatar>
             <Avatar>{room.name[0]}</Avatar>
           </ListItemAvatar>
@@ -279,7 +317,7 @@ class App extends Component {
       <AppBar position="static" color="default">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            Default channel
+            {('#'+this.state.channelName) && this.state.channelName !== ''}
           </Typography>
         </Toolbar>
       </AppBar>
