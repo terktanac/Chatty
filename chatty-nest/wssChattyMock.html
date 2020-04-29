@@ -1,15 +1,31 @@
 <html>
 
     <title>Chatty Mock</title>
+    <style>
+        div#chatLog {
+            width :500;
+            height :300;
+            margin : 0em;
+            border : 5px solid gray;
+        }
+    </style>
 
+    <div id ="chatlog"></div>
     <div id = "chatty">
         <input type="text" placeholder="text :" id="text">
         <button onclick=handleClick()> send </button>
+        <button onclick=handleChangeChannel()> move to channel </button>
+        <input type="text" placeholder="channel :" id="channel">
     </div>
+
+    <div id = "chat log"> </div>
 
     <script>
         var socket = new WebSocket("ws://localhost:4000")
         var user = prompt("your name")
+        var chatLog = document.getElementById("chatlog")
+        
+
         function handleClick() {
             let text = document.getElementById("text").value
             var sendData = {
@@ -17,19 +33,31 @@
                 "data": text
             }
             socket.send(JSON.stringify(sendData))
-            
+        }
+
+        function handleChangeChannel() {
+            var nowChannel = document.getElementById("channel").value
+            var sendData = {
+                "type":"changeChannel",
+                "data": nowChannel
+            }
+            socket.send(JSON.stringify(sendData))
         }
 
         socket.onopen = () => {
             var sendData = {
-                "type":"username",
-                "data": user
+                "type":"initial",
+                "data": {
+                    "name":user,
+                    "channel":"1"
+                }
             }
             socket.send(JSON.stringify(sendData))
         }
 
         socket.onmessage = (event) => {
             //console.log(event)
+            chatLog.innerHTML += `${event.data}</br>`
             console.log(event.data)
         }
         
