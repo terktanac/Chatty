@@ -6,8 +6,9 @@ export class AppService {
   getHello(): string {
     return 'Hello World!';
   }
+}
 
-<<<<<<< HEAD
+// HEAD
 // var MongoClient = require('mongodb').MongoClient;
 // var url = "mongodb://localhost:27017/";
 
