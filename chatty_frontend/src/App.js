@@ -81,7 +81,12 @@ class App extends Component {
       user: {
         id: -1,
         name: "",
-        joinedChannel: new Set([]),
+        joinedChannel: [
+          {
+            id: 1,
+            lastTime:'',
+          },
+        ],
       },
       channels: [],
     };
@@ -93,6 +98,19 @@ class App extends Component {
 
   setClosePopUp() {
     this.setState({isOpenPopup:false})
+  }
+
+  signIn() {
+    console.log("Sign in");
+    //TODO generate user id
+    if(this.state.user.name !== '')
+    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name, joinedChannel: []}});
+  }
+
+  getName(e) {
+    let aUser = this.state.user
+    aUser.name = e.target.value
+    this.setState({ user: aUser});
   }
 
   addChannel() {
@@ -108,25 +126,11 @@ class App extends Component {
     }
   }
 
-  signIn() {
-    console.log("Sign in");
-    //TODO generate user id
-    if(this.state.user.name !== '')
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name, joinedChannel: new Set([])} });
-  }
-
-  getName(e) {
-    let aUser = this.state.user
-    aUser.name = e.target.value
-    this.setState({ user: aUser});
-  }
-
   getNewchannelName(e) {
     this.setState({ newchannelName: e.target.value });
   }
   
   signOut() {
-    //firebase.auth().signOut();
     console.log("Sign out");
     this.setState({ isSignIn: false, user: { id:-1, name: "" } });
   }
@@ -138,7 +142,6 @@ class App extends Component {
   }
 
   saveMessage(message) {
-
     console.log("Save message");
   }
   
@@ -276,32 +279,21 @@ class App extends Component {
     );
   }
 
-  renderSignOutButton() {
-    return <Button onClick={() => this.signOut()}>Sign out</Button>;
-  }
-
-  renderChat() {
-    return (
-      <GiftedChat
-        user={this.state.user}
-        messages={this.state.messages}
-        onSend={(messages) => this.onSend(messages)}
-        renderAvatarOnTop={true}
-      />
-    );
-  }
-
-  renderChannels() {
-    return (
-      <List>
-        {this.state.channels.map(this.renderAChannel)}
-      </List>
-    );
+  isJoinChannel = (channelID) => {
+    let aUser = this.state.user
+    for(let i = 0; i < aUser.joinedChannel.length; i++) {
+      if(aUser.joinedChannel[i].id === channelID) {
+        return i
+      }
+    }
+    return -1
   }
 
   joinChannel = () => {
     let aUser = this.state.user
-    aUser.joinedChannel.add(this.state.currentChannel)
+    aUser.joinedChannel.push({id:this.state.currentChannel,lastTime:null})
+    console.log(aUser.joinedChannel)
+    
     //get data from backend
     this.setState({
       user:aUser
@@ -310,59 +302,28 @@ class App extends Component {
   
   leaveChannel = () => {
     let aUser = this.state.user
-    aUser.joinedChannel.delete(this.state.currentChannel)
+    let index = this.isJoinChannel(this.state.currentChannel)
+    aUser.joinedChannel.splice(index,1)
     this.setState({
       user:aUser
     })
   }
 
   enterChannel = (channel) => {
-    if(this.state.user.joinedChannel.has(channel.id)) {
-      //get data from backend
+    let aUser = this.state.user
+    let index = this.isJoinChannel(this.state.currentChannel)
+    if(index !== -1) {
+      var newData = {id:this.state.currentChannel, lastTime:new Date()}
+      aUser.joinedChannel.push(newData)
+      aUser.joinedChannel.splice(index,1)
+    }
+    if(this.isJoinChannel(channel.id) !== -1  && this.state.currentChannel !== channel.id) {
+      console.log("He need notification from db");
     }
     this.setState({
       currentChannel:channel.id,
       channelName:channel.name,
     })
-    
-    
-  }
-
-  renderAChannel = (channel) => {
-    return (
-      <ListItem button onClick={() => this.enterChannel(channel)}>
-          <ListItemAvatar>
-            <Avatar>{channel.name[0]}</Avatar>
-          </ListItemAvatar>
-          <ListItemText primary={'#' + channel.name} />
-          <p>{this.state.user.joinedChannel.has(channel.id) ? '#' + channel.name + '(joined)' : ''}</p>
-        </ListItem>
-    )
-  }
-
-  renderChatHeader() {
-    return (
-      <AppBar position="static" color="default">
-        <Toolbar>
-          <Typography variant="h6" color="inherit">
-            {this.state.channelName !== '' ? '#' + this.state.channelName : ''}
-          </Typography>
-          {!this.state.user.joinedChannel.has(this.state.currentChannel) && this.state.currentChannel !== '' && (<Button variant="contained" color="primary" onClick={() => this.joinChannel()}>Join</Button>)}
-          {(this.state.user.joinedChannel.has(this.state.currentChannel)) && (<Button variant="contained" color="primary" onClick={() => this.leaveChannel()}>Leave</Button>)}
-        </Toolbar>
-      </AppBar>
-    );
-  }
-  renderSettingsHeader() {
-    return (
-      <AppBar position="static" color="default">
-        <Toolbar>
-          <Typography variant="h6" color="inherit">
-            Settings
-          </Typography>
-        </Toolbar>
-      </AppBar>
-    );
   }
 
   renderChannelsHeader() {
@@ -378,6 +339,67 @@ class App extends Component {
         </Toolbar>
       </AppBar>
     );
+  }
+
+  renderAChannel = (channel) => {
+    return (
+      <ListItem button onClick={() => this.enterChannel(channel)}>
+          <ListItemAvatar>
+            <Avatar>{channel.name[0]}</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={'#' + channel.name} />
+          <p>{this.isJoinChannel(channel.id) !== -1 ? ' (joined)' : ''}</p>
+        </ListItem>
+    )
+  }
+
+  renderChannels() {
+    return (
+      <List>
+        {this.state.channels.map(this.renderAChannel)}
+      </List>
+    );
+  }
+
+  renderChatHeader() {
+    return (
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <Typography variant="h6" color="inherit">
+            {this.state.channelName !== '' ? '#' + this.state.channelName : ''}
+          </Typography>
+          {this.isJoinChannel(this.state.currentChannel) === -1 && this.state.currentChannel !== '' && (<Button variant="contained" color="primary" onClick={() => this.joinChannel()}>Join</Button>)}
+          {this.isJoinChannel(this.state.currentChannel) !== -1 && (<Button variant="contained" color="primary" onClick={() => this.leaveChannel()}>Leave</Button>)}
+        </Toolbar>
+      </AppBar>
+    );
+  }
+
+  renderChat() {
+    return (
+      <GiftedChat
+        user={this.state.user}
+        messages={this.state.messages}
+        onSend={(messages) => this.onSend(messages)}
+        renderAvatarOnTop={true}
+      />
+    );
+  }
+
+  renderSettingsHeader() {
+    return (
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <Typography variant="h6" color="inherit">
+            Settings
+          </Typography>
+        </Toolbar>
+      </AppBar>
+    );
+  }
+
+  renderSignOutButton() {
+    return <Button onClick={() => this.signOut()}>Sign out</Button>;
   }
 
   render() {
