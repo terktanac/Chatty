@@ -91,6 +91,7 @@ class App extends Component {
       },
       channels: [],
     };
+    this.loadChatHistory = this.loadChatHistory.bind(this)
   }
 
   setOpenPopUp() {
@@ -336,8 +337,9 @@ class App extends Component {
     })
   }
 
-  loadChatHistory = () => {
-    console.log("Load chat history from db");
+  loadChatHistory = (channelName) => {
+    console.log("Load chat history from " + channelName);
+    return ([])
   }
 
   enterChannel = (channel) => {
@@ -353,22 +355,25 @@ class App extends Component {
     }
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
-    if(indexJoin !== -1  && this.state.currentChannel !== channel.name && JSON.stringify(allMessage) !== JSON.stringify([])) {
-      this.loadChatHistory()
+    if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
+      allMessage = this.loadChatHistory(channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
       }
       socket.send(JSON.stringify(sendData))
-      for(let i = allMessage.length - 2; i >= 0; i--) {
-        if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
-          allMessage[i+1].status = true;
-          break
-        }
-        else {
-          allMessage[i+1].status = false
+      if(JSON.stringify(allMessage) !== JSON.stringify([])) {
+        for(let i = allMessage.length - 2; i >= 0; i--) {
+          if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
+            allMessage[i+1].status = true;
+            break
+          }
+          else {
+            allMessage[i+1].status = false
+          }
         }
       }
+      
     }
     this.setState({
       messages:allMessage,
