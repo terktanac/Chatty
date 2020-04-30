@@ -362,6 +362,11 @@ class App extends Component {
       messages:allMessage,
       currentChannel:channel.name,
     })
+    let sendData = {
+      "type":"changeChannel",
+      "data": channel.name
+    }
+    socket.send(JSON.stringify(sendData))
   }
 
   renderChannelsHeader() {
