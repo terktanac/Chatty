@@ -26,7 +26,7 @@ export class AppService {
 // });
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/parallel');
+mongoose.connect('mongodb://localhost:27017/parallel1');
 
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -41,20 +41,20 @@ db.once('open', function() {
 
 
 var userSchema = new mongoose.Schema({
-  userID : Number,
+  userID : String,
   name : String,
   avater : String
 });
 
 var chatroomSchema = new mongoose.Schema({
-  roomID : Number,
+  roomID : String,
   collectionOfMessage : String,
   createTime : Date
 })
 
 
 var messageSchema = new mongoose.Schema({
-  messageID : Number,
+  messageID : String,
   roomID : Number,
   text : String,
   createTime : Date,
@@ -70,24 +70,24 @@ var userxchatroomSchema = new mongoose.Schema({
 
 
 // var Kitten = mongoose.model('Kitten', kittySchema);
-var user = mongoose.model('User',userSchema)
-var chatroom = mongoose.model('Chatroom',chatroomSchema)
-var message = mongoose.model('Message',messageSchema)
-var userXRoom = mongoose.model('UserXRoom',userxchatroomSchema)
+var userDB = mongoose.model('User',userSchema)
+var chatroomDB = mongoose.model('Chatroom',chatroomSchema)
+var messageDB = mongoose.model('Message',messageSchema)
+var userXRoomDB = mongoose.model('UserXRoom',userxchatroomSchema)
 
 //construtors
 
 // var silence = new Kitten({ name: 'Silence' });
 // console.log(silence.name); // 'Silence'
 
-// var owen = new user({userID:1,name:'Owen',avater:'test.png'})
+// var owen = new user({userID:500,name:'Owen',avater:'test.png'})
 // console.log(owen.name);
 
 // var channel = new chatroom({roomID :1,collectionOfMessage : "String",createTime : Date()})
 // console.log(channel.name);
 
-// var chat = new message({messageID : 1,
-//                         roomID : 1,    
+// var chat = new messageDB({messageID : 500,
+//                         roomID : 999,    
 //                         text : "String",
 //                         createTime : Date(),
 //                         userJSON : {roomID :1,collectionOfMessage : "String",createTime : Date()},
@@ -212,6 +212,17 @@ wss.on('connection', function connection(ws) {
     if (chat.type == 'message') {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
+      // console.log(chat.data[0])
+      var test = new messageDB({messageID : chat.data[0].user.id,
+                              roomID : 5,    
+                              text : chat.data[0].text,
+                              createTime : chat.data[0].createdAt,
+                              userJSON : {roomID :1,collectionOfMessage : "String",createTime : Date()},
+                              status : true})
+      console.log(test)
+      test.save(function (err, chat) {
+        if (err) return console.error(err);
+      });
       console.log(chat.data[0].user.joinedChannel)
       let sendData = {
         "type":"message",
