@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Timestamp } from 'mongodb';
 import { async } from 'rxjs/internal/scheduler/async';
-import { promises } from 'dns';
+import { promises, resolveSrv } from 'dns';
 
 @Injectable()
 export class AppService {
@@ -62,7 +62,7 @@ var chatroomSchema = new mongoose.Schema({
 
 var messageSchema = new mongoose.Schema({
   messageID : String,
-  roomID : Number,
+  roomID : String,
   text : String,
   createTime : Date,
   userJSON : JSON,
@@ -70,8 +70,8 @@ var messageSchema = new mongoose.Schema({
 })
 
 var userxchatroomSchema = new mongoose.Schema({
-  userID : Number,
-  roomID : Number,
+  userID : String,
+  roomID : String,
   latestestUnreadTime : Date
 });
 
@@ -264,17 +264,17 @@ wss.on('connection', function connection(ws) {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
       // console.log(chat.data[0])
-      var test = new messageDB({messageID : chat.data[0].user.id,
-                              roomID : 5,    
+      var test = new messageDB({messageID : chat.data[0].id,
+                              roomID : chat.data[0].channelName,    
                               text : chat.data[0].text,
                               createTime : chat.data[0].createdAt,
-                              userJSON : {roomID :1,collectionOfMessage : "String",createTime : Date()},
-                              status : true})
-      console.log(test)
+                              userJSON : {roomID :chat.data[0].channelName,collectionOfMessage : "String",createTime : Date()},
+                              status : chat.data[0].status})
+      // console.log(test)
       test.save(function (err, chat) {
         if (err) return console.error(err);
       });
-      console.log(chat.data[0])
+      // console.log(chat.data[0])
       let sendData = {
         "type":"message",
         "data": chat.data
@@ -290,15 +290,53 @@ wss.on('connection', function connection(ws) {
       
       if (ws.channel != chat.data) {
         ws.channel = chat.data
-        console.log(`${ws.username} change channel to ${chat.data}`)
+        // console.log(`${ws.username} change channel to ${chat.data}`)
         // wss.clients.forEach(element => {
         //   if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
         //   if (element.channel == chat.data) element.send(`${ws.username} joined`)
         // });
+        // console.log('room:',chat.data)
+        var userToChannel =[]
+        messageDB.find({roomID:chat.data},function (err, kittens) {
+            if (err) return console.error(err);
+            kittens.forEach(element => {
+              // console.log(element)
+              userToChannel.push(element)
+            });
+            // console.log("array:",userToChannel)
+            return userToChannel
+          }).then(function(userToChannel) {
+            // console.log(userToChannel);
+            // expected output: "Success!"
+            var sendMessages = []
+            userToChannel.forEach(element => {
+              var sendMessage = {
+                channelName: element.roomID,
+                createdAt: element.createTime,
+                status: element.status,
+                text: element.text,
+                user: {
+                  id: "name",
+                  name: "name",
+                  joinedChannel : [{ firstTime:Date(),
+                                    lastname :Date(),
+                                    name:element.roomID}]   
+                }
+              }
+              sendMessages.push(sendMessage)
+            })
+            return sendMessages
+            }).then(function(sendMessages) {
+              console.log(sendMessages)
+            })
+          
+      }
+        
+        
+        // console.log(userToChannel)
         ws.channel = chat.data
       }
       
-    }
 
     if (chat.type == 'debug') {
       console.log(chat)
