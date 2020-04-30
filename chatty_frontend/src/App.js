@@ -292,9 +292,7 @@ class App extends Component {
   joinChannel = () => {
     let aUser = this.state.user
     aUser.joinedChannel.push({id:this.state.currentChannel,lastTime:null})
-    console.log(aUser.joinedChannel)
-    
-    //get data from backend
+    console.log("Get notification from channel "+this.state.currentChannel);
     this.setState({
       user:aUser
     })
@@ -318,7 +316,7 @@ class App extends Component {
       aUser.joinedChannel.splice(index,1)
     }
     if(this.isJoinChannel(channel.id) !== -1  && this.state.currentChannel !== channel.id) {
-      console.log("He need notification from db");
+      console.log("Load chat history from db");
     }
     this.setState({
       currentChannel:channel.id,
