@@ -208,10 +208,9 @@ class App extends Component {
       }));}
       if (mes.type == "initial") {
         console.log(mes.data)
-        //TODO
         this.setState({joinedChannel:mes.data})
         let nowState = this.state
-        nowState.joinedChannel = mes.data
+        nowState.user.joinedChannel = mes.data
         this.setState(nowState)
         console.log(this.state.user.joinedChannel)
       }
@@ -355,6 +354,8 @@ class App extends Component {
     this.setState({
       user:aUser
     })
+    //TODO
+    //when user press Leave -> send message type "message" to backend to update joined state
   }
 
   loadChatHistory = (channelName) => {
