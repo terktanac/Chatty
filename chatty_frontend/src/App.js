@@ -177,6 +177,7 @@ class App extends Component {
   saveMessage(message) {
     console.log("Save message");
   }
+
   
   //manage all websocket
   wsConnection() {
@@ -205,6 +206,15 @@ class App extends Component {
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}
+      if (mes.type == "initial") {
+        console.log(mes.data)
+        //TODO
+        this.setState({joinedChannel:mes.data})
+        let nowState = this.state
+        nowState.joinedChannel = mes.data
+        this.setState(nowState)
+        console.log(this.state.user.joinedChannel)
+      }
      
   }}
   componentDidMount() {
