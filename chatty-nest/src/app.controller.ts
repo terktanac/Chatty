@@ -29,9 +29,13 @@ wss.on('connection', function connection(ws) {
       //message = chat.data
       
       console.log(chat.data)
+      let sendData = {
+        "type":"message",
+        "data": chat.data
+      }
       wss.clients.forEach(element => {
         //if (element.channel == ws.channel) element.send(message)
-        element.send(JSON.stringify(chat.data))
+        element.send(JSON.stringify(sendData))
       });
     }
 

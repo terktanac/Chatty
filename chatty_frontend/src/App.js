@@ -107,7 +107,7 @@ class App extends Component {
     console.log("Sign in");
     //TODO generate user id
     if(this.state.user.name !== '')
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name, joinedChannel: []}});
+    this.setState({ isSignIn: true, user: {id: this.state.user.name, name: this.state.user.name, joinedChannel: []}});
   }
 
   getName(e) {
@@ -163,11 +163,16 @@ class App extends Component {
     socket.send(JSON.stringify(sendData))
 
     socket.onmessage = (event) => {
-      let message = JSON.parse(event.data)
-      console.log(message)
-      this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, message),
-      }));
+      //console.log(event.data)
+      let mes = JSON.parse(event.data)
+      //console.log(mes.data.user)
+      //console.log(message.data.type)
+      if (mes.type == 'message') {
+        //mes.data.user.id = mes.data.user.name
+        this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, mes.data),
+      }));}
+      
       
     }
     
