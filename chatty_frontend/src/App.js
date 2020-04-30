@@ -164,48 +164,48 @@ class App extends Component {
   componentDidMount() {
     this.setState({
       // TODO set from database
-      // messages: [
-      //   {
-      //     id: 4,
-      //     text: "ORA ORA ORA",
-      //     createdAt: new Date(),
-      //     status: true,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      //   {
-      //     id: 3,
-      //     text: "MUDA MUDA MUDA",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 2,
-      //     text: "OHOH",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 1,
-      //     text: "DIO",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      // ],
+      messages: [
+        {
+          id: 4,
+          text: "ORA ORA ORA",
+          createdAt: new Date("2015-03-25T12:07:00"),
+          status: true,
+          user: {
+            id: 2,
+            name: "Jotaro",
+          },
+        },
+        {
+          id: 3,
+          text: "MUDA MUDA MUDA",
+          createdAt: new Date("2015-03-25T12:05:00"),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 2,
+          text: "OHOH",
+          createdAt: new Date("2015-03-25T12:02:00"),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 1,
+          text: "DIO",
+          createdAt: new Date("2015-03-25T12:00:00"),
+          status: false,
+          user: {
+            id: 2,
+            name: "Jotaro",
+          },
+        },
+      ],
       channels: [
         {
           id : 1,
@@ -331,10 +331,23 @@ class App extends Component {
       aUser.joinedChannel.push(newData)
       aUser.joinedChannel.splice(index,1)
     }
-    if(this.isJoinChannel(channel.id) !== -1  && this.state.currentChannel !== channel.id) {
+    let indexJoin = this.isJoinChannel(channel.id)
+    let allMessage = this.state.messages
+    
+    
+    if(indexJoin !== -1  && this.state.currentChannel !== channel.id) {
       console.log("Load chat history from db");
+      for(let i = allMessage.length - 1; i >= 0; i--) {
+        if(allMessage[i].createdAt.getTime() > this.state.user.joinedChannel[indexJoin].lastTime) {
+          allMessage[i].status = true;
+        }
+        else {
+          allMessage[i].status = false
+        }
+      }
     }
     this.setState({
+      messages:allMessage,
       currentChannel:channel.id,
       channelName:channel.name,
     })
@@ -383,7 +396,7 @@ class App extends Component {
             {this.state.channelName !== '' ? '#' + this.state.channelName : ''}
           </Typography>
           {this.isJoinChannel(this.state.currentChannel) === -1 && this.state.currentChannel !== '' && (<Button variant="contained" color="primary" onClick={() => this.joinChannel()}>Join</Button>)}
-          {this.isJoinChannel(this.state.currentChannel) !== -1 && (<Button variant="contained" color="primary" onClick={() => this.leaveChannel()}>Leave</Button>)}
+          {this.isJoinChannel(this.state.currentChannel) !== -1 && (<Button variant="contained" color="secondary" onClick={() => this.leaveChannel()}>Leave</Button>)}
         </Toolbar>
       </AppBar>
     );
