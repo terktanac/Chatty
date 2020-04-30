@@ -48,9 +48,9 @@ db.once('open', function() {
 // })
 
 var userSchema = new mongoose.Schema({
-  userID : String,
   name : String,
-  avater : String
+  avater : String,
+  joinedChannel : Array
 });
 
 var chatroomSchema = new mongoose.Schema({
@@ -72,7 +72,8 @@ var messageSchema = new mongoose.Schema({
 var userxchatroomSchema = new mongoose.Schema({
   userID : String,
   roomID : String,
-  latestestUnreadTime : Date
+  latestestUnreadTime : Date,
+  
 });
 
 
@@ -264,11 +265,41 @@ wss.on('connection', function connection(ws) {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
       // console.log(chat.data[0])
+      console.log("chat.data[0]",chat.data[0])
+      console.log("joinedChannel", chat.data[0].user.joinedChannel)
+      let joined = chat.data[0].user.joinedChannel
+      let uName = chat.data[0].user.name
+      userDB.find({name:uName},function (err, result) {
+        if (err) return console.error(err);
+        console.log("res",result)
+        if (result.length == 0) {
+          let userJoined = new userDB({
+            name:uName,
+            joinedChannel:joined
+          })
+          userJoined.save(function (err, chat) {
+            if (err) return console.error(err);
+          });
+        }
+        else {
+          //console.log("overwrite",result[0]['_id'])
+          //userDB.deleteOne({_id:result[0]['_id']})
+          result[0].remove()
+          let userJoined = new userDB({
+            name:uName,
+            joinedChannel:joined
+          })
+          userJoined.save(function (err, chat) {
+            if (err) return console.error(err);
+          });
+        }
+      
+      })
       var test = new messageDB({messageID : chat.data[0].id,
                               roomID : chat.data[0].channelName,    
                               text : chat.data[0].text,
                               createTime : chat.data[0].createdAt,
-                              userJSON : {roomID :chat.data[0].channelName,collectionOfMessage : "String",createTime : Date()},
+                              userJSON : {roomID :chat.data[0].channelName,collectionOfMessage : chat.data[0].user,createTime : Date()},
                               status : chat.data[0].status})
       // console.log(test)
       test.save(function (err, chat) {
@@ -316,8 +347,8 @@ wss.on('connection', function connection(ws) {
                 status: element.status,
                 text: element.text,
                 user: {
-                  id: "name",
-                  name: "name",
+                  id: element.userJSON.collectionOfMessage.name,
+                  name: element.userJSON.collectionOfMessage.name,
                   joinedChannel : [{ firstTime:Date(),
                                     lastname :Date(),
                                     name:element.roomID}]   
@@ -325,9 +356,14 @@ wss.on('connection', function connection(ws) {
               }
               sendMessages.push(sendMessage)
             })
-            return sendMessages
+            return sendMessages.reverse()
             }).then(function(sendMessages) {
-              console.log(sendMessages)
+              let sendMes = {
+                "type":"newMessage",
+                "data":sendMessages
+              }
+              ws.send(JSON.stringify(sendMes))
+              //console.log(sendMessages)
             })
           
       }
