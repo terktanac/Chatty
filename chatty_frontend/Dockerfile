@@ -1,9 +1,9 @@
 #get node image with latest version
-FROM node:latest
+FROM node:10
 #mkdir and cd to specified path
 WORKDIR /usr/src/app
 #copy package files to app directory
-COPY ./package*.json ./
+COPY ./package.json ./
 #install dependencies
 RUN npm install
 #copy code into container
@@ -11,4 +11,4 @@ COPY . .
 #PORT
 EXPOSE 3000
 #start
-CMD [ "npm", "start" ]
+CMD [ "npm", "run", "start" ]

@@ -162,7 +162,17 @@ class App extends Component {
       "data": messages
     }
     this.state.socket.send(JSON.stringify(sendData))
-    this.state.socket.onmessage = (event) => {
+    
+
+  }
+
+  saveMessage(message) {
+    console.log("Save message");
+  }
+  
+  //manage all websocket
+  wsConnection() {
+    socket.onmessage = (event) => {
       //console.log(event.data)
       let mes = JSON.parse(event.data)
       //console.log(mes.data.user)
@@ -178,18 +188,7 @@ class App extends Component {
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}  
     }
-
   }
-
-  saveMessage(message) {
-    console.log("Save message");
-  }
-
-  fecthChannelData = () => {
-    console.log("Fetch data from db");
-    
-  }
-  
   componentDidMount() {
     socket = new WebSocket("ws://localhost:4000")
     socket.onopen = () => {
@@ -199,7 +198,8 @@ class App extends Component {
       }
       socket.send(JSON.stringify(sendData))
     }
-    this.fecthChannelData()
+    this.wsConnection()
+    
     this.setState({
       socket:socket,
       channels: [
@@ -211,6 +211,10 @@ class App extends Component {
         },
       ]
     });
+  }
+
+  componentWillMount() {
+    
   }
 
   renderPopup() {
