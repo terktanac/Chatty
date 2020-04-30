@@ -27,8 +27,7 @@ wss.on('connection', function connection(ws) {
     if (chat.type == 'message') {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
-      
-      console.log(chat.data)
+      console.log(chat.data[0].user.joinedChannel)
       let sendData = {
         "type":"message",
         "data": chat.data
