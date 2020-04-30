@@ -272,7 +272,7 @@ wss.on('connection', function connection(ws) {
       test.save(function (err, chat) {
         if (err) return console.error(err);
       });
-      console.log(chat.data[0].user.joinedChannel)
+      console.log(chat.data[0])
       let sendData = {
         "type":"message",
         "data": chat.data
