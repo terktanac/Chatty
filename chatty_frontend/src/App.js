@@ -155,9 +155,12 @@ class App extends Component {
   }
 
   onSend(messages=[]) {
+    
+    if(this.isJoinChannel(this.state.currentChannel) === -1)
+      return
     //console.log(messages)
     messages[0]['status'] = false
-    console.log(messages[0])
+    messages[0]['channelId'] = this.state.currentChannel
     let sendData = {
       "type":"message",
       "data": messages
@@ -198,48 +201,6 @@ class App extends Component {
     this.setState({
       // TODO set from database
       socket:socket,
-      // messages: [
-      //   {
-      //     id: 4,
-      //     text: "ORA ORA ORA",
-      //     createdAt: new Date(),
-      //     status: true,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      //   {
-      //     id: 3,
-      //     text: "MUDA MUDA MUDA",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 2,
-      //     text: "OHOH",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 1,
-      //     text: "DIO",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      // ],
       channels: [
         {
           id : 1,
@@ -329,10 +290,10 @@ class App extends Component {
     );
   }
 
-  isJoinChannel = (channelID) => {
+  isJoinChannel = (channelId) => {
     let aUser = this.state.user
     for(let i = 0; i < aUser.joinedChannel.length; i++) {
-      if(aUser.joinedChannel[i].id === channelID) {
+      if(aUser.joinedChannel[i].id === channelId) {
         return i
       }
     }
@@ -357,6 +318,10 @@ class App extends Component {
     })
   }
 
+  loadChatHistory = () => {
+    console.log("Load chat history from db");
+  }
+
   enterChannel = (channel) => {
     let aUser = this.state.user
     let index = this.isJoinChannel(this.state.currentChannel)
@@ -368,7 +333,7 @@ class App extends Component {
     let indexJoin = this.isJoinChannel(channel.id)
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.id && JSON.stringify(allMessage) !== JSON.stringify([])) {
-      console.log("Load chat history from db");
+      this.loadChatHistory()
       for(let i = allMessage.length - 2; i >= 0; i--) {
         if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
           allMessage[i+1].status = true;
