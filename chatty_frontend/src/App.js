@@ -163,14 +163,10 @@ class App extends Component {
     socket.send(JSON.stringify(sendData))
 
     socket.onmessage = (event) => {
-      console.log(JSON.parse(event.data))
-      //chatLog.innerHTML += `${event.data}</br>`
-      //console.log(JSON.parse(event))
-      // if (event.type == 'message') {
-        
-      // }
+      let message = JSON.parse(event.data)
+      console.log(message)
       this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, JSON.parse(event.data)),
+        messages: GiftedChat.append(previousState.messages, message),
       }));
       
     }
