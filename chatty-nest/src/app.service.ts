@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Timestamp } from 'mongodb';
+import { async } from 'rxjs/internal/scheduler/async';
+import { promises } from 'dns';
 
 @Injectable()
 export class AppService {
@@ -97,7 +99,24 @@ export class AppService {
 //                             latestestUnreadTime : Date()
 // })
 
+// var konXRoom = new userXRoom({userID : 1,
+//                             roomID : 1,
+//                             latestestUnreadTime : Date()
+// })
 
+// var konXRoom1 = new userXRoom({userID : 1,
+//   roomID : 2,
+//   latestestUnreadTime : Date()
+// })
+// var konXRoom2 = new userXRoom({userID : 1,
+//   roomID : 2,
+//   latestestUnreadTime : Date()
+// })
+
+// var konXRoom3 = new userXRoom({userID : 2,
+//   roomID : 2,
+//   latestestUnreadTime : Date()
+// })
 
 // // // NOTE: methods must be added to the schema before compiling it with mongoose.model()
 // // kittySchema.methods.speak = function () {
@@ -142,8 +161,117 @@ export class AppService {
 
 // message.find(function (err, kittens) {
 //   if (err) return console.error(err);
-//   console.log(kittens);
+// });
+// konXRoom.save(function (err, konXRoom) {
+//   if (err) return console.error(err);
+//   console.log(konXRoom)
+// });
+// konXRoom1.save(function (err, konXRoom1) {
+//   if (err) return console.error(err);
+//   console.log(konXRoom)
+// });
+// konXRoom2.save(function (err, konXRoom2) {
+//   if (err) return console.error(err);
+//   console.log(konXRoom)
+// });
+// konXRoom3.save(function (err, konXRoom3) {
+//   if (err) return console.error(err);
+//   console.log(konXRoom)
+// });
+
+
+//find
+// user.find(function (err, User) {
+//   if (err) return console.error(err);
+//   console.log(User);
+//   User.forEach(user => {
+//     console.log(typeof(user._id))
+//     console.log("ID:",user._id)
+//   });
+  
 // })
 
 
+// chatroom.find(function (err, kittens) {
+//   if (err) return console.error(err);
+//   console.log(kittens);
+// })
+
+// message.find(function (err, kittens) {
+//   if (err) return console.error(err);
+//   console.log(kittens);
+// })
+// var i = 2
+// var j = 2
+// userXRoom.find({roomID:i}, function (err, para) {
+//   if(err) return console.error(err)
+//   console.log(para)
+// });
+
+// async findByuserID(userId){
+//   var test =[]
+//   user.forEach(element => {
+//     if(element)
+//   });
+//   await return this.user
+// }
+
+
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 4000 });
+
+//wait client data
+wss.on('connection', function connection(ws) {
+  ws.on('message',function(message) {
+    var chat = JSON.parse(message)
+    //console.log(chat)
+    if (chat.type == 'initial')  {
+      ws.username = chat.data.user.name
+      //ws.channel = chat.data.channel
+    }
+
+    if (chat.type == 'message') {
+      //message = `${ws.username} : ${chat.data}`
+      //message = chat.data
+      console.log(chat.data[0].user.joinedChannel)
+      let sendData = {
+        "type":"message",
+        "data": chat.data
+      }
+      wss.clients.forEach(element => {
+        //if (element.channel == ws.channel) element.send(message)
+        element.send(JSON.stringify(sendData))
+      });
+    }
+
+    if (chat.type == 'changeChannel') {
+      if (ws.channel != chat.data) {
+        wss.clients.forEach(element => {
+          if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
+          if (element.channel == chat.data) element.send(`${ws.username} joined`)
+        });
+        ws.channel = chat.data
+      }
+      
+    }
+
+    if (chat.type == 'debug') {
+      console.log(chat)
+
+    }
+    
+    //console.log(ws)
+    console.log("----------------------------------------")
+    //console.log(wss.clients)
+  
+    //storee
+  })
+
+
+
+  ws.on('close', function () {
+    console.log("lost"+ws.username)
+  })
+  
+});
 
