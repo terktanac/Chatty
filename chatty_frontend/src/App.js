@@ -441,6 +441,17 @@ class App extends Component {
     );
   }
 
+  renderAUser = () => {
+    return (
+      <ListItem>
+          <ListItemAvatar>
+            <Avatar>{this.state.user.name[0]}</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={this.state.user.name} />
+        </ListItem>
+    )
+  }
+
   renderSignOutButton() {
     return <Button onClick={() => this.signOut()}>Sign out</Button>;
   }
@@ -460,6 +471,7 @@ class App extends Component {
         </div>
         <div style={styles.settings}>
           {this.renderSettingsHeader()}
+          {this.renderAUser()}
           {this.renderSignOutButton()}
         </div>
       </div>
