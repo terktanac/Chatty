@@ -161,11 +161,11 @@ class App extends Component {
     });
   }
 
-  onSend(messages=[]) {
+  onSend = (messages=[]) => {
     
     if(this.isJoinChannel(this.state.currentChannel) === -1)
       return
-    //console.log(messages)
+    console.log(messages)
     messages[0]['status'] = false
     messages[0]['channelId'] = this.state.currentChannel
     let sendData = {
@@ -317,7 +317,15 @@ class App extends Component {
 
   joinChannel = () => {
     let aUser = this.state.user
-    aUser.joinedChannel.push({id:this.state.currentChannel,lastTime:null})
+    aUser.joinedChannel.push({name:this.state.currentChannel,lastTime:null,firstTime:new Date()})
+    let message = []
+    message.push({
+      id:'first',
+      createdAt: new Date(),
+      text: this.state.user.name + ' join ' + this.state.currentChannel,
+      user: this.state.user,
+    })
+    this.onSend(message)
     console.log("Get notification from channel "+this.state.currentChannel);
     this.setState({
       user:aUser
