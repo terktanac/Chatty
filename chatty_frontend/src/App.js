@@ -114,7 +114,7 @@ class App extends Component {
   }
 
   addChannel() {
-    this.setState({isOpenPopup:false})
+    
     if(this.state.newchannelName !== '') {
       let allchannels = this.state.channels
       let lastId = allchannels[allchannels.length-1].id
@@ -122,6 +122,7 @@ class App extends Component {
         id: lastId + 1,
         name: this.state.newchannelName,
       })
+      this.setState({isOpenPopup:false})
       //tell server about new channel
     }
   }
