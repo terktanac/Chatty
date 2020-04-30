@@ -194,9 +194,19 @@ class App extends Component {
         this.setState({messages:allMessage})
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}  
-    }
-  }
+      }));}
+      if (mes.type == 'newMessage') {
+        //mes.data.user.id = mes.data.user.name
+        let allMessage = this.state.messages
+        for(let i = allMessage.length - 1; i >= 0; i--) {
+          allMessage[i].status = false
+        }
+        this.setState({messages:allMessage})
+        this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, mes.data),
+      }));}
+     
+  }}
   componentDidMount() {
     socket = new WebSocket("ws://localhost:4000")
     socket.onopen = () => {
