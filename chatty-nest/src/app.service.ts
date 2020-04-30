@@ -254,7 +254,9 @@ wss.on('connection', function connection(ws) {
     var chat = JSON.parse(message)
     //console.log(chat)
     if (chat.type == 'initial')  {
-      ws.username = chat.data.user.name
+      console.log(`initial ${chat.data.username}`)
+      ws.username = chat.data.username
+      ws.channel = ''
       //ws.channel = chat.data.channel
     }
 
@@ -272,11 +274,12 @@ wss.on('connection', function connection(ws) {
       test.save(function (err, chat) {
         if (err) return console.error(err);
       });
-      console.log(chat.data[0].user.joinedChannel)
+      console.log(chat.data[0])
       let sendData = {
         "type":"message",
         "data": chat.data
       }
+
       wss.clients.forEach(element => {
         //if (element.channel == ws.channel) element.send(message)
         element.send(JSON.stringify(sendData))
@@ -284,11 +287,12 @@ wss.on('connection', function connection(ws) {
     }
 
     if (chat.type == 'changeChannel') {
+      console.log(`${ws.username} change channel to ${chat.data}`)
       if (ws.channel != chat.data) {
-        wss.clients.forEach(element => {
-          if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
-          if (element.channel == chat.data) element.send(`${ws.username} joined`)
-        });
+        // wss.clients.forEach(element => {
+        //   if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
+        //   if (element.channel == chat.data) element.send(`${ws.username} joined`)
+        // });
         ws.channel = chat.data
       }
       
