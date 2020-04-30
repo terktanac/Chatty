@@ -2,6 +2,23 @@ version : '2'
 services:
     #mongo db
     #front
+    Front:
+        build: ./chatty_frontend
+        volumes: ./chatty_frontend:/usr/src/app
+        ports: 3000:3000
     #back1
+    Back1:
+        build: ./chatty_nest
+        volumes: ./chatty_nest:/usr/src/app
+        ports: 3001:3001
     #back2
-    
+    Back2:
+        build: ./back
+        volumes: ./chatty_nest:/usr/src/app
+        ports: 3002:3001
+    #loadbalancer
+    LoadBalancer:
+        build: ./load_balancer
+        links: Back1
+        links: Back2
+        ports: 8080:8080
