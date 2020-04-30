@@ -28,6 +28,8 @@ import {
 // custom chat
 import { GiftedChat } from "react-web-gifted-chat";
 
+var socket
+
 const config = {
   apiKey: "AIzaSyCFHAzrXFy6mMU3jkzbz-4TXvDTDdQyZak",
   authDomain: "chat-d8714.firebaseapp.com",
@@ -77,6 +79,7 @@ class App extends Component {
       currentChannel:'',
       isSignIn: false,
       isOpenPopup: false,
+      socket:'',
       messages: [],
       user: {
         id: -1,
@@ -151,10 +154,27 @@ class App extends Component {
     });
   }
 
-  onSend(messages=[]) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
+  async onSend(messages=[]) {
+    console.log(messages)
+    let sendData = {
+      "type":"message",
+      "data": messages
+    }
+    socket.send(JSON.stringify(sendData))
+
+    socket.onmessage = (event) => {
+      console.log(JSON.parse(event.data))
+      //chatLog.innerHTML += `${event.data}</br>`
+      //console.log(JSON.parse(event))
+      // if (event.type == 'message') {
+        
+      // }
+      this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, JSON.parse(event.data)),
+      }));
+      
+    }
+    
   }
 
   saveMessage(message) {
@@ -162,50 +182,59 @@ class App extends Component {
   }
   
   componentDidMount() {
+    socket = new WebSocket("ws://localhost:4000")
+    socket.onopen = () => {
+      var sendData = {
+          "type":"debug",
+          "data": "connectted"
+      }
+      socket.send(JSON.stringify(sendData))
+    }
     this.setState({
-      // TODO set from database
-      // messages: [
-      //   {
-      //     id: 4,
-      //     text: "ORA ORA ORA",
-      //     createdAt: new Date(),
-      //     status: true,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      //   {
-      //     id: 3,
-      //     text: "MUDA MUDA MUDA",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 2,
-      //     text: "OHOH",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 3,
-      //       name: "Dio",
-      //     },
-      //   },
-      //   {
-      //     id: 1,
-      //     text: "DIO",
-      //     createdAt: new Date(),
-      //     status: false,
-      //     user: {
-      //       id: 2,
-      //       name: "Jotaro",
-      //     },
-      //   },
-      // ],
+      //TODO set from database
+      socket:socket,
+      messages: [
+        {
+          id: 4,
+          text: "ORA ORA ORA",
+          createdAt: new Date(),
+          status: true,
+          user: {
+            id: 2,
+            name: "Jotaro",
+          },
+        },
+        {
+          id: 3,
+          text: "MUDA MUDA MUDA",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 2,
+          text: "OHOH",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 3,
+            name: "Dio",
+          },
+        },
+        {
+          id: 1,
+          text: "DIO",
+          createdAt: new Date(),
+          status: false,
+          user: {
+            id: 2,
+            name: "Jotaro",
+          },
+        },
+      ],
       channels: [
         {
           id : 1,

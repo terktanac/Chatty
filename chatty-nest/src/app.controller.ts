@@ -18,16 +18,20 @@ const wss = new WebSocket.Server({ port: 4000 });
 wss.on('connection', function connection(ws) {
   ws.on('message',function(message) {
     var chat = JSON.parse(message)
-    console.log(chat)
+    //console.log(chat)
     if (chat.type == 'initial')  {
-      ws.username = chat.data.name
-      ws.channel = chat.data.channel
+      ws.username = chat.data.user.name
+      //ws.channel = chat.data.channel
     }
 
     if (chat.type == 'message') {
-      message = `${ws.username} : ${chat.data}`
+      //message = `${ws.username} : ${chat.data}`
+      //message = chat.data
+      
+      console.log(chat.data)
       wss.clients.forEach(element => {
-        if (element.channel == ws.channel) element.send(message)
+        //if (element.channel == ws.channel) element.send(message)
+        element.send(JSON.stringify(chat.data))
       });
     }
 
@@ -42,9 +46,13 @@ wss.on('connection', function connection(ws) {
       
     }
 
+    if (chat.type == 'debug') {
+      console.log(chat)
+
+    }
     
     //console.log(ws)
-    //console.log("----------------------------------------")
+    console.log("----------------------------------------")
     //console.log(wss.clients)
   
     //storee
