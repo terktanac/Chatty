@@ -28,6 +28,8 @@ import {
 // custom chat
 import { GiftedChat } from "react-web-gifted-chat";
 
+var socket
+
 const config = {
   apiKey: "AIzaSyCFHAzrXFy6mMU3jkzbz-4TXvDTDdQyZak",
   authDomain: "chat-d8714.firebaseapp.com",
@@ -104,7 +106,7 @@ class App extends Component {
     console.log("Sign in");
     //TODO generate user id
     if(this.state.user.name !== '')
-    this.setState({ isSignIn: true, user: {id: 1, name: this.state.user.name, joinedChannel: []}});
+    this.setState({ isSignIn: true, user: {id: this.state.user.name, name: this.state.user.name, joinedChannel: []}});
   }
 
   getName(e) {
@@ -152,18 +154,46 @@ class App extends Component {
   }
 
   onSend(messages=[]) {
-    this.setState((previousState) => ({
-      messages: GiftedChat.append(previousState.messages, messages),
-    }));
+    console.log(messages)
+    let sendData = {
+      "type":"message",
+      "data": messages
+    }
+    this.state.socket.send(JSON.stringify(sendData))
+
+    this.state.socket.onmessage = (event) => {
+      //console.log(event.data)
+      let mes = JSON.parse(event.data)
+      //console.log(mes.data.user)
+      //console.log(message.data.type)
+      if (mes.type == 'message') {
+        //mes.data.user.id = mes.data.user.name
+        this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, mes.data),
+      }));}
+      
+      
+    }
+    
   }
+
 
   saveMessage(message) {
     console.log("Save message");
   }
   
   componentDidMount() {
+    socket = new WebSocket("ws://localhost:4000")
+    socket.onopen = () => {
+      var sendData = {
+          "type":"debug",
+          "data": "connectted"
+      }
+      socket.send(JSON.stringify(sendData))
+    }
     this.setState({
       // TODO set from database
+      socket:socket,
       // messages: [
       //   {
       //     id: 4,
