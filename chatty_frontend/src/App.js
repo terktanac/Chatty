@@ -155,13 +155,14 @@ class App extends Component {
   }
 
   onSend(messages=[]) {
-    console.log(messages)
+    //console.log(messages)
+    messages[0]['status'] = false
+    console.log(messages[0])
     let sendData = {
       "type":"message",
       "data": messages
     }
     this.state.socket.send(JSON.stringify(sendData))
-
     this.state.socket.onmessage = (event) => {
       //console.log(event.data)
       let mes = JSON.parse(event.data)
@@ -171,11 +172,9 @@ class App extends Component {
         //mes.data.user.id = mes.data.user.name
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}
-      
-      
+      }));}  
     }
-    
+
   }
 
 
@@ -364,16 +363,15 @@ class App extends Component {
     }
     let indexJoin = this.isJoinChannel(channel.id)
     let allMessage = this.state.messages
-    
-    
-    if(indexJoin !== -1  && this.state.currentChannel !== channel.id) {
+    if(indexJoin !== -1  && this.state.currentChannel !== channel.id && JSON.stringify(allMessage) !== JSON.stringify([])) {
       console.log("Load chat history from db");
-      for(let i = allMessage.length - 1; i >= 0; i--) {
-        if(allMessage[i].createdAt.getTime() > this.state.user.joinedChannel[indexJoin].lastTime) {
-          allMessage[i].status = true;
+      for(let i = allMessage.length - 2; i >= 0; i--) {
+        if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
+          allMessage[i+1].status = true;
+          break
         }
         else {
-          allMessage[i].status = false
+          allMessage[i+1].status = false
         }
       }
     }
