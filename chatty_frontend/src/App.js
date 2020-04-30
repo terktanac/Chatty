@@ -132,7 +132,23 @@ class App extends Component {
   
   signOut() {
     console.log("Sign out");
-    this.setState({ isSignIn: false, user: { id:-1, name: "" } });
+    this.setState({
+       newchannelName: '',
+         channelName: '',
+         currentChannel: '',
+         isSignIn: false,
+         isOpenPopup: false,
+         messages: [],
+         user: {
+           id: -1,
+           name: "",
+           joinedChannel: [{
+             id: 1,
+             lastTime: '',
+           }, ],
+         },
+         channels: [],
+    });
   }
 
   onSend(messages=[]) {
