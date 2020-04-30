@@ -25,6 +25,7 @@ export class AppService {
 //   });
 // });
 
+<<<<<<< HEAD
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/parallel1');
 
@@ -34,12 +35,36 @@ db.once('open', function() {
   // we're connected!
   console.log("OK")
 });
+=======
+// var mongoose = require('mongoose');
+// mongoose.connect('mongodb://localhost:27017/parallel');
 
-// var kittySchema = new mongoose.Schema({
-//   name: String
+// var db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+//   // we're connected!
+//   console.log("OK")
 // });
 
+// // var kittySchema = new mongoose.Schema({
+// //   name: String
+// // });
 
+>>>>>>> 8ddd3d98eafdc0eb16398193f519b398be3813c9
+
+// var userSchema = new mongoose.Schema({
+//   userID : Number,
+//   name : String,
+//   avater : String
+// });
+
+// var chatroomSchema = new mongoose.Schema({
+//   roomID : Number,
+//   collectionOfMessage : String,
+//   createTime : Date
+// })
+
+<<<<<<< HEAD
 var userSchema = new mongoose.Schema({
   userID : String,
   name : String,
@@ -74,18 +99,48 @@ var userDB = mongoose.model('User',userSchema)
 var chatroomDB = mongoose.model('Chatroom',chatroomSchema)
 var messageDB = mongoose.model('Message',messageSchema)
 var userXRoomDB = mongoose.model('UserXRoom',userxchatroomSchema)
+=======
 
-//construtors
+// var messageSchema = new mongoose.Schema({
+//   messageID : Number,
+//   roomID : Number,
+//   text : String,
+//   createTime : Date,
+//   userJSON : JSON,
+//   status : Boolean
+// })
 
-// var silence = new Kitten({ name: 'Silence' });
-// console.log(silence.name); // 'Silence'
+// var userxchatroomSchema = new mongoose.Schema({
+//   userID : Number,
+//   roomID : Number,
+//   latestestUnreadTime : Date
+// });
 
+
+// // var Kitten = mongoose.model('Kitten', kittySchema);
+// var user = mongoose.model('User',userSchema)
+// var chatroom = mongoose.model('Chatroom',chatroomSchema)
+// var message = mongoose.model('Message',messageSchema)
+// var userXRoom = mongoose.model('UserXRoom',userxchatroomSchema)
+>>>>>>> 8ddd3d98eafdc0eb16398193f519b398be3813c9
+
+// //construtors
+
+// // var silence = new Kitten({ name: 'Silence' });
+// // console.log(silence.name); // 'Silence'
+
+<<<<<<< HEAD
 // var owen = new user({userID:500,name:'Owen',avater:'test.png'})
 // console.log(owen.name);
+=======
+// // var owen = new user({userID:1,name:'Owen',avater:'test.png'})
+// // console.log(owen.name);
+>>>>>>> 8ddd3d98eafdc0eb16398193f519b398be3813c9
 
-// var channel = new chatroom({roomID :1,collectionOfMessage : "String",createTime : Date()})
-// console.log(channel.name);
+// // var channel = new chatroom({roomID :1,collectionOfMessage : "String",createTime : Date()})
+// // console.log(channel.name);
 
+<<<<<<< HEAD
 // var chat = new messageDB({messageID : 500,
 //                         roomID : 999,    
 //                         text : "String",
@@ -93,6 +148,20 @@ var userXRoomDB = mongoose.model('UserXRoom',userxchatroomSchema)
 //                         userJSON : {roomID :1,collectionOfMessage : "String",createTime : Date()},
 //                         status : true})
 // console.log(chat.name);
+=======
+// // var chat = new message({messageID : 1,
+// //                         roomID : 1,    
+// //                         text : "String",
+// //                         createTime : Date(),
+// //                         userJSON : {roomID :1,collectionOfMessage : "String",createTime : Date()},
+// //                         status : true})
+// // console.log(chat.name);
+
+// var konXRoom = new userXRoom({userID : 1,
+//                             roomID : 1,
+//                             latestestUnreadTime : Date()
+// })
+>>>>>>> 8ddd3d98eafdc0eb16398193f519b398be3813c9
 
 // var konXRoom = new userXRoom({userID : 1,
 //                             roomID : 1,
@@ -113,32 +182,48 @@ var userXRoomDB = mongoose.model('UserXRoom',userxchatroomSchema)
 //   latestestUnreadTime : Date()
 // })
 
+// // // NOTE: methods must be added to the schema before compiling it with mongoose.model()
+// // kittySchema.methods.speak = function () {
+// //   var greeting = this.name
+// //     ? "Meow name is " + this.name
+// //     : "I don't have a name";
+// //   console.log(greeting);
+// // }
 
-// // NOTE: methods must be added to the schema before compiling it with mongoose.model()
-// kittySchema.methods.speak = function () {
-//   var greeting = this.name
-//     ? "Meow name is " + this.name
-//     : "I don't have a name";
-//   console.log(greeting);
-// }
+// // var Kitten = mongoose.model('Kitten', kittySchema);
 
-// var Kitten = mongoose.model('Kitten', kittySchema);
+// // var fluffy = new Kitten({ name: 'fluffy' });
+// // fluffy.speak(); // "Meow name is fluffy"
 
-// var fluffy = new Kitten({ name: 'fluffy' });
-// fluffy.speak(); // "Meow name is fluffy"
+// // fluffy.save(function (err, fluffy) {
+// //   if (err) return console.error(err);
+// //   // fluffy.speak();
+// // });
 
-// fluffy.save(function (err, fluffy) {
+// // owen.save(function (err, owen) {
+// //   if (err) return console.error(err);
+// // });
+// // channel.save(function (err, channel) {
+// //   if (err) return console.error(err);
+// // });
+// // chat.save(function (err, chat) {
+// //   if (err) return console.error(err);
+// // });
+// konXRoom.save(function (err, chat) {
 //   if (err) return console.error(err);
-//   // fluffy.speak();
 // });
 
-// owen.save(function (err, owen) {
+// user.find(function (err, kittens) {
 //   if (err) return console.error(err);
-// });
-// channel.save(function (err, channel) {
+//   console.log(kittens);
+// })
+
+// chatroom.find(function (err, kittens) {
 //   if (err) return console.error(err);
-// });
-// chat.save(function (err, chat) {
+//   console.log(kittens);
+// })
+
+// message.find(function (err, kittens) {
 //   if (err) return console.error(err);
 // });
 // konXRoom.save(function (err, konXRoom) {
