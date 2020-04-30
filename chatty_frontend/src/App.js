@@ -106,6 +106,13 @@ class App extends Component {
     //TODO generate user id
     if(this.state.user.name !== '')
     this.setState({ isSignIn: true, user: {id: this.state.user.name, name: this.state.user.name, joinedChannel: []}});
+    let sendData = {
+      "type":"initial",
+      "data": {
+        "username":this.state.user.name
+      }
+    }
+    this.state.socket.send(JSON.stringify(sendData))
   }
 
   getName(e) {
@@ -348,6 +355,11 @@ class App extends Component {
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name && JSON.stringify(allMessage) !== JSON.stringify([])) {
       this.loadChatHistory()
+      let sendData = {
+        "type":"changeChannel",
+        "data": channel.name
+      }
+      socket.send(JSON.stringify(sendData))
       for(let i = allMessage.length - 2; i >= 0; i--) {
         if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
           allMessage[i+1].status = true;
@@ -362,11 +374,8 @@ class App extends Component {
       messages:allMessage,
       currentChannel:channel.name,
     })
-    let sendData = {
-      "type":"changeChannel",
-      "data": channel.name
-    }
-    socket.send(JSON.stringify(sendData))
+      
+    
   }
 
   renderChannelsHeader() {
