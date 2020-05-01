@@ -212,6 +212,7 @@ class App extends Component {
         nowState.user.joinedChannel = mes.data
         this.setState(nowState)
         console.log(this.state.user.joinedChannel)
+        return ([])
       }
      
   }}
@@ -376,7 +377,9 @@ class App extends Component {
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
+      console.log("query")
       allMessage = this.loadChatHistory(channel.name)
+      console.log("send ch name to back",channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
