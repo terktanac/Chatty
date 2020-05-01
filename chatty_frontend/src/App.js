@@ -147,6 +147,7 @@ class App extends Component {
              lastTime: '',
            }, ],
          },
+         channels: [],
     });
   }
 
@@ -250,12 +251,12 @@ class App extends Component {
     this.setState({
       socket:socket,
       channels: [
-        {
-          name: 'Parallel', 
-        },
-        {
-          name: 'Network', 
-        },
+        // {
+        //   name: 'Parallel', 
+        // },
+        // {
+        //   name: 'Network', 
+        // },
       ]
     });
   }
@@ -354,6 +355,11 @@ class App extends Component {
     let aUser = this.state.user
     aUser.joinedChannel.push({name:this.state.currentChannel,lastTime:null,firstTime:new Date()})
     let message = []
+    let sendData = {
+      "type":"changeChannel",
+      "data": this.state.currentChannel
+    }
+    socket.send(JSON.stringify(sendData))
     message.push({
       id:'first',
       createdAt: new Date(),
