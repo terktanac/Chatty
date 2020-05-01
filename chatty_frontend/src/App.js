@@ -168,20 +168,6 @@ class App extends Component {
 
   }
 
-  saveMessage(message) {
-    console.log("Save message");
-  }
-
-  compare( a, b ) {
-    if ( a.createdAt.getTime() < b.createdAt.getTime() ){
-      return -1;
-    }
-    if ( a.createdAt.getTime() > b.createdAt.getTime() ){
-      return 1;
-    }
-    return 0;
-  }
-  
   //manage all websocket
   wsConnection() {
     socket.onmessage = (event) => {
@@ -237,25 +223,9 @@ class App extends Component {
             }
           }
         }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        console.log(mes.data)
-=======
-<<<<<<< HEAD
-=======
-        // console.log(mes.data)
->>>>>>> f4c1b943ce63e27548fbc551a98f1b0e8b8333cc
-        this.setState({messages:allMessage})
->>>>>>> 4ecae0d09b946b31096c4b1750090cdf849e059e
->>>>>>> 0d0e82f6f8e65d1dc9aacacc53ce8bfeba667f9c
+
         this.setState((previousState) => ({
-<<<<<<< HEAD
-        messages: GiftedChat.append(previousState.messages, mes.data),
-        
-=======
           messages: GiftedChat.append(previousState.messages, messageFromDB),
->>>>>>> f4c1b943ce63e27548fbc551a98f1b0e8b8333cc
       }));}
 
       if (mes.type === "createChannel") {
