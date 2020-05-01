@@ -190,6 +190,16 @@ class App extends Component {
         console.log(this.state.user.joinedChannel)
         return ([])
       }
+      if (mes.type === 'newMessage') {
+        //mes.data.user.id = mes.data.user.name
+        let allMessage = this.state.messages
+        for(let i = allMessage.length - 1; i >= 0; i--) {
+          allMessage[i].status = false
+        }
+        this.setState({messages:allMessage})
+        this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, mes.data),
+      }));}
      
   }}
   componentDidMount() {
