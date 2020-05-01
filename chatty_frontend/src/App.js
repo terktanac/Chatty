@@ -418,9 +418,11 @@ class App extends Component {
       })
     }
     let indexJoin = this.isJoinChannel(channel.name)
+    let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
       console.log("query")
       console.log("send ch name to back",channel.name)
+      allMessage = this.loadChatHistory(channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
@@ -434,6 +436,7 @@ class App extends Component {
     } 
     
     this.setState({
+      messages:allMessage,
       currentChannel: channel.name,
     })
     
