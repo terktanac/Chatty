@@ -1,4 +1,4 @@
-version : '2'
+version : '3.2'
 services:
     #mongo db
     mongo:
@@ -10,6 +10,8 @@ services:
         build: ./chatty_frontend
         volumes: 
             - ./chatty_frontend:/usr/src/app
+        links: 
+            - load-balancer
         ports: 
             - 3000:3000
         tty : true 
@@ -21,8 +23,6 @@ services:
             - mongo
         volumes: 
             - ./chatty-nest:/usr/src/app
-        ports: 
-            - 3001:3001
     #back2
     back2:
         build: ./chatty-nest
@@ -31,8 +31,6 @@ services:
             - mongo
         volumes: 
             - ./chatty-nest:/usr/src/app
-        ports: 
-            - 3002:3001
     #loadbalancer
     load-balancer:
         build: ./load_balancer

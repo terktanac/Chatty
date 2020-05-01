@@ -246,7 +246,7 @@ var userXRoomDB = mongoose.model('UserXRoom',userxchatroomSchema)
 
 
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 4000 });
+const wss = new WebSocket.Server({ port: 3001 });
 
 //wait client data
  wss.on('connection', function connection(ws) {

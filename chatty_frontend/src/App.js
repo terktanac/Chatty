@@ -238,7 +238,7 @@ class App extends Component {
      
   }}
   componentDidMount() {
-    socket = new WebSocket("ws://localhost:4000")
+    socket = new WebSocket("ws://localhost:3001")
     socket.onopen = () => {
       var sendData = {
           "type":"debug",
