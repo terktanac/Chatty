@@ -10,29 +10,30 @@ services:
         build: ./chatty_frontend
         volumes: 
             - ./chatty_frontend:/usr/src/app
+        links: 
+            - load-balancer
         ports: 
             - 3000:3000
         tty : true 
+        command: ["npm", "run", "start"]
     #back1
     back1:
         build: ./chatty-nest
         tty: true
         depends_on :
             - mongo
-        volumes: 
-            - ./chatty-nest:/usr/src/app
         ports: 
             - 3001:3001
+        command: ["npm", "run", "start"]
     #back2
     back2:
         build: ./chatty-nest
         tty: true
         depends_on :
             - mongo
-        volumes: 
-            - ./chatty-nest:/usr/src/app
         ports: 
             - 3002:3001
+        command: ["npm", "run", "start"]
     #loadbalancer
     load-balancer:
         build: ./load_balancer
@@ -40,4 +41,4 @@ services:
             - back1 
             - back2
         ports: 
-            - 8080:8080
+            - 80:80
