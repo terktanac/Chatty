@@ -191,13 +191,25 @@ class App extends Component {
         }));
        }
       if (mes.type === "initial") {
-        console.log(mes.data)
+        console.log("initial joined",mes.data.joined)
         this.setState({joinedChannel:mes.data})
         let nowState = this.state
-        nowState.user.joinedChannel = mes.data
+        nowState.user.joinedChannel = mes.data.joined
         this.setState(nowState)
         console.log(this.state.user.joinedChannel)
+
+        
         return ([])
+      }
+
+      if (mes.type === "initChannel") {
+        if(mes.data.channel !== '') {
+          console.log("initial channel",mes.data.channel)
+          let allchannels = this.state.channels
+          allchannels=allchannels.concat(mes.data.channel)
+          console.log(allchannels)
+          this.setState({channels:allchannels})
+      }
       }
       if (mes.type === 'newMessage') {
         //mes.data.user.id = mes.data.user.name
@@ -218,7 +230,8 @@ class App extends Component {
             name: mes.data,
           })
           this.setState({channels:allchannels})
-      }}
+      }
+    }
      
   }}
   componentDidMount() {

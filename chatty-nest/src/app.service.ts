@@ -249,7 +249,7 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 4000 });
 
 //wait client data
-wss.on('connection', function connection(ws) {
+ wss.on('connection', function connection(ws) {
   ws.on('message',function(message) {
     var chat = JSON.parse(message)
     //console.log(chat)
@@ -259,13 +259,31 @@ wss.on('connection', function connection(ws) {
       ws.username = chat.data.username
       ws.channel = ''
       //ws.channel = chat.data.channel
+      var allCh=[]
+      chatroomDB.find(function (err, result) {
+        if (err) return console.error(err);
+        result.forEach((element)=> {
+          allCh.push({
+            name :element.roomID
+          })
+        })
+        let sendData = {
+          "type":"initChannel",
+          "data": {
+            channel : allCh
+          }
+        }
+       ws.send(JSON.stringify(sendData))
+      })
       userDB.find({name:ws.username},function (err, result) {
         if (err) return console.error(err);
          if (result.length != 0) {
          console.log("result",result[0].joinedChannel)
          let sendData = {
            "type":"initial",
-           "data":result[0].joinedChannel
+           "data": {
+             joined : result[0].joinedChannel,
+           }
          }
         ws.send(JSON.stringify(sendData))
          }
