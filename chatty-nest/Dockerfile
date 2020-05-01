@@ -9,7 +9,7 @@ RUN npm install
 #copy code into container
 COPY . .
 # #PORT
-# EXPOSE 3001 
+EXPOSE 3001 
 #start
 CMD [ "npm", "start" ]
 
