@@ -69,7 +69,7 @@ class App extends Component {
         name: "",
         joinedChannel: [
           {
-            name: 1,
+            name: '',
             lastTime:'',
           },
         ],
@@ -213,13 +213,21 @@ class App extends Component {
       }
       if (mes.type === 'newMessage') {
         //mes.data.user.id = mes.data.user.name
-        let allMessage = this.state.messages
-        for(let i = allMessage.length - 1; i >= 0; i--) {
-          allMessage[i].status = false
+        let messageFromDB = mes.data
+        let indexJoin = this.isJoinChannel(this.state.currentChannel)
+        if (messageFromDB !== []) {
+          for (let i = messageFromDB.length - 2; i >= 0; i--) {
+            if (new Date(messageFromDB[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
+              messageFromDB[i + 1].status = true;
+              break
+            }
+            else {
+              messageFromDB[i + 1].status = false
+            }
+          }
         }
-        this.setState({messages:allMessage})
         this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, mes.data),
+          messages: GiftedChat.append(previousState.messages, messageFromDB),
       }));}
 
       if (mes.type === "createChannel") {
@@ -247,14 +255,14 @@ class App extends Component {
     
     this.setState({
       socket:socket,
-      channels: [
-        {
-          name: 'Parallel', 
-        },
-        {
-          name: 'Network', 
-        },
-      ]
+      // channels: [
+      //   {
+      //     name: 'Parallel', 
+      //   },
+      //   {
+      //     name: 'Network', 
+      //   },
+      // ]
     });
   }
 
@@ -392,50 +400,33 @@ class App extends Component {
   }
 
   enterChannel = (channel) => {
+    // channel = Network , current = Parallel
     let aUser = this.state.user
     let index = this.isJoinChannel(this.state.currentChannel)
     console.log(this.state.user.joinedChannel);
-    
+    // joinedChannel = [Network, Parallel]
     if(index !== -1) {
       let newData = this.state.user.joinedChannel[index]
       newData.lastTime = new Date()
       aUser.joinedChannel.push(newData)
       aUser.joinedChannel.splice(index,1)
+      this.setState({
+        user: aUser
+      })
     }
     let indexJoin = this.isJoinChannel(channel.name)
-    let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
       console.log("query")
-      allMessage = this.loadChatHistory(channel.name)
       console.log("send ch name to back",channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
       }
       socket.send(JSON.stringify(sendData))
-      
-      if(JSON.stringify(allMessage) !== JSON.stringify([])) {
-        console.log('allmessage:',allMessage)
-        console.log(new Date(allMessage[allMessage.length-1].createdAt.getTime()))
-        console.log(new Date(this.state.user.joinedChannel[indexJoin].lastTime.getTime()))
-        console.log(new Date(allMessage[0].createdAt)>new Date(this.state.user.joinedChannel[indexJoin].lastTime))
-        for(let i = allMessage.length - 2; i >= 0; i--) {
-          if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
-            allMessage[i+1].status = true;
-            break
-          }
-          else {
-            allMessage[i+1].status = false
-          }
-        }
-      }
-      
     }
     this.setState({
-      messages:allMessage,
-      currentChannel:channel.name,
+      currentChannel: channel.name,
     })
-      
     
   }
 
