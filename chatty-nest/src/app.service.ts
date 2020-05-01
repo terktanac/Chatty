@@ -55,7 +55,6 @@ var userSchema = new mongoose.Schema({
 
 var chatroomSchema = new mongoose.Schema({
   roomID : String,
-  collectionOfMessage : String,
   createTime : Date
 })
 
@@ -250,32 +249,75 @@ const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 4000 });
 
 //wait client data
-wss.on('connection', function connection(ws) {
+ wss.on('connection', function connection(ws) {
   ws.on('message',function(message) {
     var chat = JSON.parse(message)
     //console.log(chat)
+    //--------------------------initial--------------------------
     if (chat.type == 'initial')  {
       console.log(`initial ${chat.data.username}`)
       ws.username = chat.data.username
       ws.channel = ''
       //ws.channel = chat.data.channel
+      var allCh=[]
+      chatroomDB.find(function (err, result) {
+        if (err) return console.error(err);
+        result.forEach((element)=> {
+          allCh.push({
+            name :element.roomID
+          })
+        })
+        let sendData = {
+          "type":"initChannel",
+          "data": {
+            channel : allCh
+          }
+        }
+       ws.send(JSON.stringify(sendData))
+      })
       userDB.find({name:ws.username},function (err, result) {
         if (err) return console.error(err);
-         console.log("result",result[0].joinedChannel)
+         if (result.length != 0) {
+        //  console.log("result",result[0].joinedChannel)
          let sendData = {
            "type":"initial",
-           "data":result[0].joinedChannel
+           "data": {
+             joined : result[0].joinedChannel,
+           }
          }
         ws.send(JSON.stringify(sendData))
+         }
       })
     }
-
+    //--------------------------create channell--------------------------
+    if (chat.type == 'createChannel') {
+      console.log(chat.data)
+        var newCh = new chatroomDB({
+          roomID : chat.data.chName,
+          createTime : chat.data.createTime,      
+          })
+          // console.log(test)
+        newCh.save(function (err, chat) {
+        if (err) return console.error(err);
+        });
+        let sendData = {
+          "type":"createChannel",
+          "data": chat.data.chName
+        }
+        wss.clients.forEach(element => {
+          if (element != ws) element.send(JSON.stringify(sendData))
+          //element.send(message) 
+          
+        });
+      
+    }
+    //--------------------------message--------------------------
     if (chat.type == 'message') {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
       // console.log(chat.data[0])
-      console.log("chat.data[0]",chat.data[0])
-      console.log("joinedChannel", chat.data[0].user.joinedChannel)
+      // console.log("chat.data[0]",chat.data[0])
+      // console.log("joinedChannel", chat.data[0].user.joinedChannel)
       let joined = chat.data[0].user.joinedChannel
       let uName = chat.data[0].user.name
       userDB.find({name:uName},function (err, result) {
@@ -321,7 +363,7 @@ wss.on('connection', function connection(ws) {
       }
 
       wss.clients.forEach(element => {
-        if (element.channel == ws.channel) element.send(JSON.stringify(sendData))
+        if (element.channel == ws.channel && element.channel) element.send(JSON.stringify(sendData))
         //element.send(message) 
         
       });
@@ -329,15 +371,15 @@ wss.on('connection', function connection(ws) {
 
     if (chat.type == 'changeChannel') {
       
-      if (ws.channel != chat.data) {
-        ws.channel = chat.data
-        // console.log(`${ws.username} change channel to ${chat.data}`)
+      ws.channel = chat.data
+        console.log(`${ws.username} change channel to ${chat.data}`)
         // wss.clients.forEach(element => {
         //   if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
         //   if (element.channel == chat.data) element.send(`${ws.username} joined`)
         // });
         // console.log('room:',chat.data)
         var userToChannel =[]
+
         messageDB.find({roomID:chat.data},function (err, kittens) {
             if (err) return console.error(err);
             kittens.forEach(element => {
@@ -359,8 +401,8 @@ wss.on('connection', function connection(ws) {
                 user: {
                   id: element.userJSON.collectionOfMessage.name,
                   name: element.userJSON.collectionOfMessage.name,
-                  joinedChannel : [{ firstTime:Date(),
-                                    lastname :Date(),
+                  joinedChannel : [{ firstTime: new Date(element.collectionOfMessage),
+                                    lastTime :new Date(),
                                     name:element.roomID}]   
                 }
               }
@@ -375,8 +417,6 @@ wss.on('connection', function connection(ws) {
               ws.send(JSON.stringify(sendMes))
               //console.log(sendMessages)
             })
-          
-      }
         
         
         // console.log(userToChannel)

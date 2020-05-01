@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-// database
-import firebase from "firebase";
-
 // material ui
 import {
   Avatar,
@@ -29,18 +26,6 @@ import {
 import { GiftedChat } from "react-web-gifted-chat";
 
 var socket
-
-const config = {
-  apiKey: "AIzaSyCFHAzrXFy6mMU3jkzbz-4TXvDTDdQyZak",
-  authDomain: "chat-d8714.firebaseapp.com",
-  databaseURL: "https://chat-d8714.firebaseio.com",
-  projectId: "chat-d8714",
-  storageBucket: "chat-d8714.appspot.com",
-  messagingSenderId: "279941056049",
-  appId: "1:279941056049:web:ed4998671258c1f88a7710",
-  measurementId: "G-YQH7E78NRG"
-};
-firebase.initializeApp(config);
 
 const styles = {
   container: {
@@ -132,6 +117,14 @@ class App extends Component {
       this.setState({isOpenPopup:false})
       //tell server about new channel
     }
+    let sendData = {
+      "type":"createChannel",
+      "data": {
+        "chName":this.state.newchannelName,
+        "createTime":new Date()
+      }
+    }
+    this.state.socket.send(JSON.stringify(sendData))
   }
 
   getNewchannelName(e) {
@@ -154,13 +147,15 @@ class App extends Component {
              lastTime: '',
            }, ],
          },
+         channels: [],
     });
   }
 
-  onSend = (messages=[]) => {
+  onSend = (messages = [], leaveMessage=false) => {
     
-    if(this.isJoinChannel(this.state.currentChannel) === -1)
+    if (this.isJoinChannel(this.state.currentChannel) === -1 && !leaveMessage)
       return
+
     console.log(messages)
     messages[0]['status'] = false
     messages[0]['channelName'] = this.state.currentChannel
@@ -191,28 +186,55 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
-        this.setState({messages:allMessage})
+        console.log(mes.data)
+        this.setState({ messages: allMessage })
         this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}
+          messages: GiftedChat.append(previousState.messages, mes.data),
+        }));
+       }
+      if (mes.type === "initial") {
+        console.log("initial joined",mes.data.joined)
+        this.setState({joinedChannel:mes.data})
+        let nowState = this.state
+        nowState.user.joinedChannel = mes.data.joined
+        this.setState(nowState)
+        console.log(this.state.user.joinedChannel)
+
+        
+        return ([])
+      }
+
+      if (mes.type === "initChannel") {
+        if(mes.data.channel !== '') {
+          console.log("initial channel",mes.data.channel)
+          let allchannels = this.state.channels
+          allchannels=allchannels.concat(mes.data.channel)
+          console.log(allchannels)
+          this.setState({channels:allchannels})
+      }
+      }
       if (mes.type === 'newMessage') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
+        // console.log(mes.data)
         this.setState({messages:allMessage})
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}
-      if (mes.type == "initial") {
-        console.log(mes.data)
-        this.setState({joinedChannel:mes.data})
-        let nowState = this.state
-        nowState.user.joinedChannel = mes.data
-        this.setState(nowState)
-        console.log(this.state.user.joinedChannel)
+
+      if (mes.type === "createChannel") {
+        console.log("remote create",mes.data)
+        if(mes.data !== '') {
+          let allchannels = this.state.channels
+          allchannels.push({
+            name: mes.data,
+          })
+          this.setState({channels:allchannels})
       }
+    }
      
   }}
   componentDidMount() {
@@ -229,12 +251,12 @@ class App extends Component {
     this.setState({
       socket:socket,
       channels: [
-        {
-          name: 'Parallel', 
-        },
-        {
-          name: 'Network', 
-        },
+        // {
+        //   name: 'Parallel', 
+        // },
+        // {
+        //   name: 'Network', 
+        // },
       ]
     });
   }
@@ -333,10 +355,15 @@ class App extends Component {
     let aUser = this.state.user
     aUser.joinedChannel.push({name:this.state.currentChannel,lastTime:null,firstTime:new Date()})
     let message = []
+    let sendData = {
+      "type":"changeChannel",
+      "data": this.state.currentChannel
+    }
+    socket.send(JSON.stringify(sendData))
     message.push({
       id:'first',
       createdAt: new Date(),
-      text: this.state.user.name + ' join ' + this.state.currentChannel,
+      text: this.state.user.name + ' join ' + this.state.currentChannel + "!",
       user: this.state.user,
     })
     this.onSend(message)
@@ -348,10 +375,20 @@ class App extends Component {
   
   leaveChannel = () => {
     let aUser = this.state.user
+    let message = []
+    let leaveMessage = true
     let index = this.isJoinChannel(this.state.currentChannel)
-    aUser.joinedChannel.splice(index,1)
+    aUser.joinedChannel.splice(index, 1)
+    message.push({
+      id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
+      createdAt: new Date(),
+      text: this.state.user.name + ' leave ' + this.state.currentChannel + "!",
+      user: aUser,
+    })
+    this.onSend(message, leaveMessage)
     this.setState({
-      user:aUser
+      user:aUser,
+      messages:[]
     })
     //TODO
     //when user press Leave -> send message type "message" to backend to update joined state
@@ -376,13 +413,20 @@ class App extends Component {
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
+      console.log("query")
       allMessage = this.loadChatHistory(channel.name)
+      console.log("send ch name to back",channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
       }
       socket.send(JSON.stringify(sendData))
+      
       if(JSON.stringify(allMessage) !== JSON.stringify([])) {
+        console.log('allmessage:',allMessage)
+        console.log(new Date(allMessage[allMessage.length-1].createdAt.getTime()))
+        console.log(new Date(this.state.user.joinedChannel[indexJoin].lastTime.getTime()))
+        console.log(new Date(allMessage[0].createdAt)>new Date(this.state.user.joinedChannel[indexJoin].lastTime))
         for(let i = allMessage.length - 2; i >= 0; i--) {
           if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
             allMessage[i+1].status = true;
@@ -393,8 +437,11 @@ class App extends Component {
           }
         }
       }
-      
     }
+    else if(indexJoin === -1) {
+      allMessage = []
+    } 
+    
     this.setState({
       messages:allMessage,
       currentChannel:channel.name,
