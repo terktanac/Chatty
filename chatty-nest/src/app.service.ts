@@ -323,7 +323,7 @@ wss.on('connection', function connection(ws) {
       }
 
       wss.clients.forEach(element => {
-        if (element.channel == ws.channel) element.send(JSON.stringify(sendData))
+        if (element.channel == ws.channel && element.channel) element.send(JSON.stringify(sendData))
         //element.send(message) 
         
       });
