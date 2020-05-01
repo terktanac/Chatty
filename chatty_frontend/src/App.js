@@ -177,11 +177,12 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
-        this.setState({messages:allMessage})
+        this.setState({ messages: allMessage })
         this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}
-      if (mes.type == "initial") {
+          messages: GiftedChat.append(previousState.messages, mes.data),
+        }));
+       }
+      if (mes.type === "initial") {
         console.log(mes.data)
         this.setState({joinedChannel:mes.data})
         let nowState = this.state
@@ -347,7 +348,8 @@ class App extends Component {
     })
     this.onSend(message, leaveMessage)
     this.setState({
-      user:aUser
+      user:aUser,
+      messages:[]
     })
     //TODO
     //when user press Leave -> send message type "message" to backend to update joined state
@@ -373,14 +375,19 @@ class App extends Component {
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
       console.log("query")
-      allMessage = this.loadChatHistory(channel.name)
+      // allMessage = this.loadChatHistory(channel.name)
       console.log("send ch name to back",channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
       }
       socket.send(JSON.stringify(sendData))
+      
       if(JSON.stringify(allMessage) !== JSON.stringify([])) {
+        console.log('allmessage:',allMessage)
+        // console.log(new Date(allMessage[allMessage.length-1].createdAt))
+        // console.log(new Date(this.state.user.joinedChannel[indexJoin].lastTime))
+        // console.log(new Date(allMessage[0].createdAt)>new Date(this.state.user.joinedChannel[indexJoin].lastTime))
         for(let i = allMessage.length - 2; i >= 0; i--) {
           if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
             allMessage[i+1].status = true;

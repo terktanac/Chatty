@@ -360,8 +360,8 @@ wss.on('connection', function connection(ws) {
                 user: {
                   id: element.userJSON.collectionOfMessage.name,
                   name: element.userJSON.collectionOfMessage.name,
-                  joinedChannel : [{ firstTime:Date(),
-                                    lastname :Date(),
+                  joinedChannel : [{ firstTime: new Date(element.collectionOfMessage),
+                                    lastTime :new Date(),
                                     name:element.roomID}]   
                 }
               }
