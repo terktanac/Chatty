@@ -133,6 +133,11 @@ class App extends Component {
   
   signOut() {
     console.log("Sign out");
+    let sendData = {
+      "type":"changeChannel",
+      "data": ''
+    }
+    socket.send(JSON.stringify(sendData))
     this.setState({
       newchannelName: '',
          currentChannel: '',
@@ -382,6 +387,7 @@ class App extends Component {
     let leaveMessage = true
     let index = this.isJoinChannel(this.state.currentChannel)
     aUser.joinedChannel.splice(index, 1)
+    
     message.push({
       id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
       createdAt: new Date(),
@@ -395,6 +401,11 @@ class App extends Component {
     })
     //TODO
     //when user press Leave -> send message type "message" to backend to update joined state
+    let sendData = {
+      "type":"changeChannel",
+      "data": ''
+    }
+    socket.send(JSON.stringify(sendData))
   }
 
   loadChatHistory = (channelName) => {
