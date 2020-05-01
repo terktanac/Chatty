@@ -8,8 +8,8 @@ COPY ./package*.json ./
 RUN npm install
 #copy code into container
 COPY . .
-#PORT
-EXPOSE 3001 
+# #PORT
+# EXPOSE 3001 
 #start
 CMD [ "npm", "start" ]
 

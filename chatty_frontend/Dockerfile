@@ -9,7 +9,7 @@ RUN npm install
 RUN npm install react-web-gifted-chat
 #copy code into container
 COPY . .
-#PORT
-EXPOSE 4000
+# #PORT
+# EXPOSE 3000
 #start
 CMD [ "npm", "run", "start" ]

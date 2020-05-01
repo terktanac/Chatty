@@ -10,8 +10,10 @@ services:
         build: ./chatty_frontend
         volumes: 
             - ./chatty_frontend:/usr/src/app
+        links: 
+            - load-balancer
         ports: 
-            - 3000:3000
+            - 5000:3000
         tty : true 
     #back1
     back1:
@@ -22,7 +24,7 @@ services:
         volumes: 
             - ./chatty-nest:/usr/src/app
         ports: 
-            - 3001:4000
+            - 5001:3001
     #back2
     back2:
         build: ./chatty-nest
@@ -32,7 +34,7 @@ services:
         volumes: 
             - ./chatty-nest:/usr/src/app
         ports: 
-            - 3002:4000
+            - 5002:3001
     #loadbalancer
     load-balancer:
         build: ./load_balancer
