@@ -6,9 +6,10 @@ WORKDIR /usr/src/app
 COPY ./package.json ./
 #install dependencies
 RUN npm install
+RUN npm install react-web-gifted-chat
 #copy code into container
 COPY . .
 #PORT
-EXPOSE 3000
+EXPOSE 4000
 #start
 CMD [ "npm", "run", "start" ]

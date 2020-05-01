@@ -22,7 +22,7 @@ services:
         volumes: 
             - ./chatty-nest:/usr/src/app
         ports: 
-            - 3001:3001
+            - 3001:4000
     #back2
     back2:
         build: ./chatty-nest
@@ -32,7 +32,7 @@ services:
         volumes: 
             - ./chatty-nest:/usr/src/app
         ports: 
-            - 3002:3001
+            - 3002:4000
     #loadbalancer
     load-balancer:
         build: ./load_balancer
