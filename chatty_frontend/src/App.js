@@ -142,10 +142,11 @@ class App extends Component {
     });
   }
 
-  onSend = (messages=[]) => {
+  onSend = (messages = [], leaveMessage=false) => {
     
-    if(this.isJoinChannel(this.state.currentChannel) === -1)
+    if (this.isJoinChannel(this.state.currentChannel) === -1 && !leaveMessage)
       return
+
     console.log(messages)
     messages[0]['status'] = false
     messages[0]['channelName'] = this.state.currentChannel
@@ -311,7 +312,7 @@ class App extends Component {
     message.push({
       id:'first',
       createdAt: new Date(),
-      text: this.state.user.name + ' join ' + this.state.currentChannel,
+      text: this.state.user.name + ' join ' + this.state.currentChannel + "!",
       user: this.state.user,
     })
     this.onSend(message)
@@ -323,16 +324,17 @@ class App extends Component {
   
   leaveChannel = () => {
     let aUser = this.state.user
-    let index = this.isJoinChannel(this.state.currentChannel)
-    aUser.joinedChannel.splice(index,1)
     let message = []
+    let leaveMessage = true
+    let index = this.isJoinChannel(this.state.currentChannel)
+    aUser.joinedChannel.splice(index, 1)
     message.push({
       id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
       createdAt: new Date(),
-      text: this.state.user.name + ' leave ' + this.state.currentChannel,
+      text: this.state.user.name + ' leave ' + this.state.currentChannel + "!",
       user: aUser,
     })
-    this.onSend(message)
+    this.onSend(message, leaveMessage)
     this.setState({
       user:aUser
     })
