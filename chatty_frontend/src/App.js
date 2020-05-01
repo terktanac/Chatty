@@ -156,6 +156,17 @@ class App extends Component {
     });
   }
 
+  compMessage () {  
+    return function(a, b) {  
+        if (new Date(a.createdAt).getTime()  < new Date(b.createdAt).getTime()) {  
+            return 1;  
+        } else if (new Date(a.createdAt).getTime()  > new Date(b.createdAt).getTime()) {  
+            return -1;  
+        }  
+        return 0;  
+    }  
+}  
+
   onSend = (messages = [], leaveMessage=false) => {
     
     if (this.isJoinChannel(this.state.currentChannel) === -1 && !leaveMessage)
@@ -228,10 +239,12 @@ class App extends Component {
             }
           }
         }
-
-        this.setState((previousState) => ({
-          messages: GiftedChat.append(previousState.messages, messageFromDB),
-      }));}
+        let rawMessages = GiftedChat.append(this.state.messages, messageFromDB)
+        rawMessages.sort(this.compMessage())
+        this.setState({
+          messages: rawMessages,
+        })
+      }
 
       if (mes.type === "createChannel") {
         console.log("remote create",mes.data)
@@ -246,7 +259,7 @@ class App extends Component {
      
   }}
   componentDidMount() {
-    socket = new WebSocket("ws://localhost:80")
+    socket = new WebSocket("ws://localhost:4000")
     socket.onopen = () => {
       var sendData = {
           "type":"debug",
@@ -387,25 +400,26 @@ class App extends Component {
     let leaveMessage = true
     let index = this.isJoinChannel(this.state.currentChannel)
     aUser.joinedChannel.splice(index, 1)
-    
-    message.push({
-      id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
-      createdAt: new Date(),
-      text: this.state.user.name + ' leave ' + this.state.currentChannel + "!",
-      user: aUser,
-    })
-    this.onSend(message, leaveMessage)
+    // backend must change currentChannel
+    let sendData = {
+      "type":"changeChannel",
+      "data": ''
+    }
+    socket.send(JSON.stringify(sendData))
+    // message.push({
+    //   id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
+    //   createdAt: new Date(),
+    //   text: this.state.user.name + ' leave ' + this.state.currentChannel + "!",
+    //   user: aUser,
+    // })
+    // this.onSend(message, leaveMessage)
     this.setState({
       user:aUser,
       messages:[]
     })
     //TODO
     //when user press Leave -> send message type "message" to backend to update joined state
-    let sendData = {
-      "type":"changeChannel",
-      "data": ''
-    }
-    socket.send(JSON.stringify(sendData))
+    
   }
 
   loadChatHistory = (channelName) => {
@@ -442,9 +456,7 @@ class App extends Component {
       socket.send(JSON.stringify(sendData))
     }
     else if(indexJoin === -1) {
-      this.setState({
-        messages: [],
-      })
+      allMessage = []
     } 
     
     this.setState({
