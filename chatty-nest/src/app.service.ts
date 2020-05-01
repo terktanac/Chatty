@@ -55,7 +55,6 @@ var userSchema = new mongoose.Schema({
 
 var chatroomSchema = new mongoose.Schema({
   roomID : String,
-  collectionOfMessage : String,
   createTime : Date
 })
 
@@ -254,6 +253,7 @@ wss.on('connection', function connection(ws) {
   ws.on('message',function(message) {
     var chat = JSON.parse(message)
     //console.log(chat)
+    //--------------------------initial--------------------------
     if (chat.type == 'initial')  {
       console.log(`initial ${chat.data.username}`)
       ws.username = chat.data.username
@@ -271,7 +271,29 @@ wss.on('connection', function connection(ws) {
          }
       })
     }
-
+    //--------------------------create channell--------------------------
+    if (chat.type == 'createChannel') {
+      console.log(chat.data)
+        var newCh = new chatroomDB({
+          roomID : chat.data.chName,
+          createTime : chat.data.createTime,      
+          })
+          // console.log(test)
+        newCh.save(function (err, chat) {
+        if (err) return console.error(err);
+        });
+        let sendData = {
+          "type":"createChannel",
+          "data": chat.data.chName
+        }
+        wss.clients.forEach(element => {
+          if (element != ws) element.send(JSON.stringify(sendData))
+          //element.send(message) 
+          
+        });
+      
+    }
+    //--------------------------message--------------------------
     if (chat.type == 'message') {
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data

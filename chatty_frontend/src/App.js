@@ -117,6 +117,14 @@ class App extends Component {
       this.setState({isOpenPopup:false})
       //tell server about new channel
     }
+    let sendData = {
+      "type":"createChannel",
+      "data": {
+        "chName":this.state.newchannelName,
+        "createTime":new Date()
+      }
+    }
+    this.state.socket.send(JSON.stringify(sendData))
   }
 
   getNewchannelName(e) {
@@ -201,6 +209,16 @@ class App extends Component {
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}
+
+      if (mes.type === "createChannel") {
+        console.log("remote create",mes.data)
+        if(mes.data !== '') {
+          let allchannels = this.state.channels
+          allchannels.push({
+            name: mes.data,
+          })
+          this.setState({channels:allchannels})
+      }}
      
   }}
   componentDidMount() {
