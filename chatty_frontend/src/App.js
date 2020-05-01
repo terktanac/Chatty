@@ -172,6 +172,15 @@ class App extends Component {
     console.log("Save message");
   }
 
+  compare( a, b ) {
+    if ( a.createdAt.getTime() < b.createdAt.getTime() ){
+      return -1;
+    }
+    if ( a.createdAt.getTime() > b.createdAt.getTime() ){
+      return 1;
+    }
+    return 0;
+  }
   
   //manage all websocket
   wsConnection() {
@@ -219,10 +228,11 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
-        // console.log(mes.data)
+        console.log(mes.data)
         this.setState({messages:allMessage})
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
+        
       }));}
 
       if (mes.type === "createChannel") {
