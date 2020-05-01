@@ -228,11 +228,6 @@ class App extends Component {
             }
           }
         }
-<<<<<<< HEAD
-=======
-        // console.log(mes.data)
-        this.setState({messages:allMessage})
->>>>>>> 4ecae0d09b946b31096c4b1750090cdf849e059e
         this.setState((previousState) => ({
           messages: GiftedChat.append(previousState.messages, messageFromDB),
       }));}
@@ -262,16 +257,6 @@ class App extends Component {
     
     this.setState({
       socket:socket,
-<<<<<<< HEAD
-      // channels: [
-      //   {
-      //     name: 'Parallel', 
-      //   },
-      //   {
-      //     name: 'Network', 
-      //   },
-      // ]
-=======
       channels: [
         // {
         //   name: 'Parallel', 
@@ -280,7 +265,6 @@ class App extends Component {
         //   name: 'Network', 
         // },
       ]
->>>>>>> 4ecae0d09b946b31096c4b1750090cdf849e059e
     });
   }
 
@@ -446,28 +430,11 @@ class App extends Component {
         "data": channel.name
       }
       socket.send(JSON.stringify(sendData))
-<<<<<<< HEAD
-=======
-      
-      if(JSON.stringify(allMessage) !== JSON.stringify([])) {
-        console.log('allmessage:',allMessage)
-        console.log(new Date(allMessage[allMessage.length-1].createdAt.getTime()))
-        console.log(new Date(this.state.user.joinedChannel[indexJoin].lastTime.getTime()))
-        console.log(new Date(allMessage[0].createdAt)>new Date(this.state.user.joinedChannel[indexJoin].lastTime))
-        for(let i = allMessage.length - 2; i >= 0; i--) {
-          if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
-            allMessage[i+1].status = true;
-            break
-          }
-          else {
-            allMessage[i+1].status = false
-          }
-        }
-      }
->>>>>>> 4ecae0d09b946b31096c4b1750090cdf849e059e
     }
     else if(indexJoin === -1) {
-      allMessage = []
+      this.setState({
+        messages: [],
+      })
     } 
     
     this.setState({
