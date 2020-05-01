@@ -261,12 +261,14 @@ wss.on('connection', function connection(ws) {
       //ws.channel = chat.data.channel
       userDB.find({name:ws.username},function (err, result) {
         if (err) return console.error(err);
+         if (result.length != 0) {
          console.log("result",result[0].joinedChannel)
          let sendData = {
            "type":"initial",
            "data":result[0].joinedChannel
          }
         ws.send(JSON.stringify(sendData))
+         }
       })
     }
 
