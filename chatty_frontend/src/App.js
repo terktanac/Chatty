@@ -177,11 +177,12 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
-        this.setState({messages:allMessage})
+        this.setState({ messages: allMessage })
         this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}
-      if (mes.type == "initial") {
+          messages: GiftedChat.append(previousState.messages, mes.data),
+        }));
+       }
+      if (mes.type === "initial") {
         console.log(mes.data)
         this.setState({joinedChannel:mes.data})
         let nowState = this.state
@@ -347,7 +348,8 @@ class App extends Component {
     })
     this.onSend(message, leaveMessage)
     this.setState({
-      user:aUser
+      user:aUser,
+      messages:[]
     })
     //TODO
     //when user press Leave -> send message type "message" to backend to update joined state
