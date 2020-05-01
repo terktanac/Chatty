@@ -185,6 +185,7 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
+        console.log(mes.data)
         this.setState({ messages: allMessage })
         this.setState((previousState) => ({
           messages: GiftedChat.append(previousState.messages, mes.data),
@@ -217,6 +218,7 @@ class App extends Component {
         for(let i = allMessage.length - 1; i >= 0; i--) {
           allMessage[i].status = false
         }
+        // console.log(mes.data)
         this.setState({messages:allMessage})
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
@@ -429,8 +431,11 @@ class App extends Component {
           }
         }
       }
-      
     }
+    else if(indexJoin === -1) {
+      allMessage = []
+    } 
+    
     this.setState({
       messages:allMessage,
       currentChannel:channel.name,

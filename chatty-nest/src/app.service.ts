@@ -278,7 +278,7 @@ const wss = new WebSocket.Server({ port: 4000 });
       userDB.find({name:ws.username},function (err, result) {
         if (err) return console.error(err);
          if (result.length != 0) {
-         console.log("result",result[0].joinedChannel)
+        //  console.log("result",result[0].joinedChannel)
          let sendData = {
            "type":"initial",
            "data": {
@@ -316,8 +316,8 @@ const wss = new WebSocket.Server({ port: 4000 });
       //message = `${ws.username} : ${chat.data}`
       //message = chat.data
       // console.log(chat.data[0])
-      console.log("chat.data[0]",chat.data[0])
-      console.log("joinedChannel", chat.data[0].user.joinedChannel)
+      // console.log("chat.data[0]",chat.data[0])
+      // console.log("joinedChannel", chat.data[0].user.joinedChannel)
       let joined = chat.data[0].user.joinedChannel
       let uName = chat.data[0].user.name
       userDB.find({name:uName},function (err, result) {
@@ -379,6 +379,7 @@ const wss = new WebSocket.Server({ port: 4000 });
         // });
         // console.log('room:',chat.data)
         var userToChannel =[]
+
         messageDB.find({roomID:chat.data},function (err, kittens) {
             if (err) return console.error(err);
             kittens.forEach(element => {
