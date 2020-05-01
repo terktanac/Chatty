@@ -333,7 +333,7 @@ wss.on('connection', function connection(ws) {
       
       if (ws.channel != chat.data) {
         ws.channel = chat.data
-        // console.log(`${ws.username} change channel to ${chat.data}`)
+        console.log(`${ws.username} change channel to ${chat.data}`)
         // wss.clients.forEach(element => {
         //   if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
         //   if (element.channel == chat.data) element.send(`${ws.username} joined`)
