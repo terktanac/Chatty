@@ -419,6 +419,7 @@ class App extends Component {
     }
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
+    //allMessage = this.loadChatHistory(channel.name)
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
       console.log("query")
       console.log("send ch name to back",channel.name)
