@@ -75,7 +75,6 @@ class App extends Component {
     super();
     this.state = {
       newchannelName:'',
-      channelName:'',
       currentChannel:'',
       isSignIn: false,
       isOpenPopup: false,
@@ -85,13 +84,14 @@ class App extends Component {
         name: "",
         joinedChannel: [
           {
-            id: 1,
+            name: 1,
             lastTime:'',
           },
         ],
       },
       channels: [],
     };
+    this.loadChatHistory = this.loadChatHistory.bind(this)
   }
 
   setOpenPopUp() {
@@ -107,6 +107,13 @@ class App extends Component {
     //TODO generate user id
     if(this.state.user.name !== '')
     this.setState({ isSignIn: true, user: {id: this.state.user.name, name: this.state.user.name, joinedChannel: []}});
+    let sendData = {
+      "type":"initial",
+      "data": {
+        "username":this.state.user.name
+      }
+    }
+    this.state.socket.send(JSON.stringify(sendData))
   }
 
   getName(e) {
@@ -119,9 +126,7 @@ class App extends Component {
     
     if(this.state.newchannelName !== '') {
       let allchannels = this.state.channels
-      let lastId = allchannels[allchannels.length-1].id
       allchannels.push({
-        id: lastId + 1,
         name: this.state.newchannelName,
       })
       this.setState({isOpenPopup:false})
@@ -136,8 +141,7 @@ class App extends Component {
   signOut() {
     console.log("Sign out");
     this.setState({
-       newchannelName: '',
-         channelName: '',
+      newchannelName: '',
          currentChannel: '',
          isSignIn: false,
          isOpenPopup: false,
@@ -146,21 +150,20 @@ class App extends Component {
            id: -1,
            name: "",
            joinedChannel: [{
-             id: 1,
+             name: '',
              lastTime: '',
            }, ],
          },
-         channels: [],
     });
   }
 
-  onSend(messages=[]) {
+  onSend = (messages=[]) => {
     
     if(this.isJoinChannel(this.state.currentChannel) === -1)
       return
-    //console.log(messages)
+    console.log(messages)
     messages[0]['status'] = false
-    messages[0]['channelId'] = this.state.currentChannel
+    messages[0]['channelName'] = this.state.currentChannel
     let sendData = {
       "type":"message",
       "data": messages
@@ -173,6 +176,7 @@ class App extends Component {
   saveMessage(message) {
     console.log("Save message");
   }
+
   
   //manage all websocket
   wsConnection() {
@@ -181,7 +185,7 @@ class App extends Component {
       let mes = JSON.parse(event.data)
       //console.log(mes.data.user)
       //console.log(message.data.type)
-      if (mes.type == 'message') {
+      if (mes.type === 'message') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
@@ -190,9 +194,27 @@ class App extends Component {
         this.setState({messages:allMessage})
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
-      }));}  
-    }
-  }
+      }));}
+      if (mes.type === 'newMessage') {
+        //mes.data.user.id = mes.data.user.name
+        let allMessage = this.state.messages
+        for(let i = allMessage.length - 1; i >= 0; i--) {
+          allMessage[i].status = false
+        }
+        this.setState({messages:allMessage})
+        this.setState((previousState) => ({
+        messages: GiftedChat.append(previousState.messages, mes.data),
+      }));}
+      if (mes.type == "initial") {
+        console.log(mes.data)
+        this.setState({joinedChannel:mes.data})
+        let nowState = this.state
+        nowState.user.joinedChannel = mes.data
+        this.setState(nowState)
+        console.log(this.state.user.joinedChannel)
+      }
+     
+  }}
   componentDidMount() {
     socket = new WebSocket("ws://localhost:4000")
     socket.onopen = () => {
@@ -205,15 +227,12 @@ class App extends Component {
     this.wsConnection()
     
     this.setState({
-      // TODO set from database
       socket:socket,
       channels: [
         {
-          id : 1,
           name: 'Parallel', 
         },
         {
-          id : 2,
           name: 'Network', 
         },
       ]
@@ -300,10 +319,10 @@ class App extends Component {
     );
   }
 
-  isJoinChannel = (channelId) => {
+  isJoinChannel = (channelName) => {
     let aUser = this.state.user
     for(let i = 0; i < aUser.joinedChannel.length; i++) {
-      if(aUser.joinedChannel[i].id === channelId) {
+      if(aUser.joinedChannel[i].name === channelName) {
         return i
       }
     }
@@ -312,7 +331,15 @@ class App extends Component {
 
   joinChannel = () => {
     let aUser = this.state.user
-    aUser.joinedChannel.push({id:this.state.currentChannel,lastTime:null})
+    aUser.joinedChannel.push({name:this.state.currentChannel,lastTime:null,firstTime:new Date()})
+    let message = []
+    message.push({
+      id:'first',
+      createdAt: new Date(),
+      text: this.state.user.name + ' join ' + this.state.currentChannel,
+      user: this.state.user,
+    })
+    this.onSend(message)
     console.log("Get notification from channel "+this.state.currentChannel);
     this.setState({
       user:aUser
@@ -326,39 +353,54 @@ class App extends Component {
     this.setState({
       user:aUser
     })
+    //TODO
+    //when user press Leave -> send message type "message" to backend to update joined state
   }
 
-  loadChatHistory = () => {
-    console.log("Load chat history from db");
+  loadChatHistory = (channelName) => {
+    console.log("Load chat history from " + channelName);
+    return ([])
   }
 
   enterChannel = (channel) => {
     let aUser = this.state.user
     let index = this.isJoinChannel(this.state.currentChannel)
+    console.log(this.state.user.joinedChannel);
+    
     if(index !== -1) {
-      var newData = {id:this.state.currentChannel, lastTime:new Date()}
+      let newData = this.state.user.joinedChannel[index]
+      newData.lastTime = new Date()
       aUser.joinedChannel.push(newData)
       aUser.joinedChannel.splice(index,1)
     }
-    let indexJoin = this.isJoinChannel(channel.id)
+    let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
-    if(indexJoin !== -1  && this.state.currentChannel !== channel.id && JSON.stringify(allMessage) !== JSON.stringify([])) {
-      this.loadChatHistory()
-      for(let i = allMessage.length - 2; i >= 0; i--) {
-        if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
-          allMessage[i+1].status = true;
-          break
-        }
-        else {
-          allMessage[i+1].status = false
+    if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
+      allMessage = this.loadChatHistory(channel.name)
+      let sendData = {
+        "type":"changeChannel",
+        "data": channel.name
+      }
+      socket.send(JSON.stringify(sendData))
+      if(JSON.stringify(allMessage) !== JSON.stringify([])) {
+        for(let i = allMessage.length - 2; i >= 0; i--) {
+          if(new Date(allMessage[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
+            allMessage[i+1].status = true;
+            break
+          }
+          else {
+            allMessage[i+1].status = false
+          }
         }
       }
+      
     }
     this.setState({
       messages:allMessage,
-      currentChannel:channel.id,
-      channelName:channel.name,
+      currentChannel:channel.name,
     })
+      
+    
   }
 
   renderChannelsHeader() {
@@ -377,13 +419,13 @@ class App extends Component {
   }
 
   renderAChannel = (channel) => {
+    let isJoin = this.isJoinChannel(channel.name) !== -1 ? ' (joined)' : ''
     return (
       <ListItem button onClick={() => this.enterChannel(channel)}>
           <ListItemAvatar>
             <Avatar>{channel.name[0]}</Avatar>
           </ListItemAvatar>
-          <ListItemText primary={'#' + channel.name} />
-          <p>{this.isJoinChannel(channel.id) !== -1 ? ' (joined)' : ''}</p>
+          <ListItemText primary={'#' + channel.name + isJoin} />
         </ListItem>
     )
   }
@@ -401,7 +443,7 @@ class App extends Component {
       <AppBar position="static" color="default">
         <Toolbar>
           <Typography variant="h6" color="inherit">
-            {this.state.channelName !== '' ? '#' + this.state.channelName : ''}
+            {this.state.currentChannel !== '' ? '#' + this.state.currentChannel : ''}
           </Typography>
           {this.isJoinChannel(this.state.currentChannel) === -1 && this.state.currentChannel !== '' && (<Button variant="contained" color="primary" onClick={() => this.joinChannel()}>Join</Button>)}
           {this.isJoinChannel(this.state.currentChannel) !== -1 && (<Button variant="contained" color="secondary" onClick={() => this.leaveChannel()}>Leave</Button>)}
@@ -433,6 +475,17 @@ class App extends Component {
     );
   }
 
+  renderAUser = () => {
+    return (
+      <ListItem>
+          <ListItemAvatar>
+            <Avatar>{this.state.user.name[0]}</Avatar>
+          </ListItemAvatar>
+          <ListItemText primary={this.state.user.name} />
+        </ListItem>
+    )
+  }
+
   renderSignOutButton() {
     return <Button onClick={() => this.signOut()}>Sign out</Button>;
   }
@@ -452,6 +505,7 @@ class App extends Component {
         </div>
         <div style={styles.settings}>
           {this.renderSettingsHeader()}
+          {this.renderAUser()}
           {this.renderSignOutButton()}
         </div>
       </div>
