@@ -261,12 +261,14 @@ wss.on('connection', function connection(ws) {
       //ws.channel = chat.data.channel
       userDB.find({name:ws.username},function (err, result) {
         if (err) return console.error(err);
+         if (result.length != 0) {
          console.log("result",result[0].joinedChannel)
          let sendData = {
            "type":"initial",
            "data":result[0].joinedChannel
          }
         ws.send(JSON.stringify(sendData))
+         }
       })
     }
 
@@ -329,9 +331,8 @@ wss.on('connection', function connection(ws) {
 
     if (chat.type == 'changeChannel') {
       
-      if (ws.channel != chat.data) {
-        ws.channel = chat.data
-        // console.log(`${ws.username} change channel to ${chat.data}`)
+      ws.channel = chat.data
+        console.log(`${ws.username} change channel to ${chat.data}`)
         // wss.clients.forEach(element => {
         //   if (element.channel == ws.channel) element.send(`${ws.username} leaved`)
         //   if (element.channel == chat.data) element.send(`${ws.username} joined`)
@@ -375,8 +376,6 @@ wss.on('connection', function connection(ws) {
               ws.send(JSON.stringify(sendMes))
               //console.log(sendMessages)
             })
-          
-      }
         
         
         // console.log(userToChannel)
