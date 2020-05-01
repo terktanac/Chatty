@@ -141,7 +141,7 @@ class App extends Component {
   signOut() {
     console.log("Sign out");
     this.setState({
-       newchannelName: '',
+      newchannelName: '',
          currentChannel: '',
          isSignIn: false,
          isOpenPopup: false,
@@ -154,7 +154,6 @@ class App extends Component {
              lastTime: '',
            }, ],
          },
-         channels: [],
     });
   }
 
@@ -185,7 +184,7 @@ class App extends Component {
       let mes = JSON.parse(event.data)
       //console.log(mes.data.user)
       //console.log(message.data.type)
-      if (mes.type == 'message') {
+      if (mes.type === 'message') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
@@ -195,7 +194,7 @@ class App extends Component {
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}
-      if (mes.type == 'newMessage') {
+      if (mes.type === 'newMessage') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
