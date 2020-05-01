@@ -1,5 +1,5 @@
 #get node image with latest version
-FROM node:latest
+FROM node:10
 #mkdir and cd to specified path
 WORKDIR /usr/src/app
 #copy package files to app directory

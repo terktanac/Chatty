@@ -2,9 +2,6 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
-// database
-import firebase from "firebase";
-
 // material ui
 import {
   Avatar,
@@ -29,18 +26,6 @@ import {
 import { GiftedChat } from "react-web-gifted-chat";
 
 var socket
-
-const config = {
-  apiKey: "AIzaSyCFHAzrXFy6mMU3jkzbz-4TXvDTDdQyZak",
-  authDomain: "chat-d8714.firebaseapp.com",
-  databaseURL: "https://chat-d8714.firebaseio.com",
-  projectId: "chat-d8714",
-  storageBucket: "chat-d8714.appspot.com",
-  messagingSenderId: "279941056049",
-  appId: "1:279941056049:web:ed4998671258c1f88a7710",
-  measurementId: "G-YQH7E78NRG"
-};
-firebase.initializeApp(config);
 
 const styles = {
   container: {
@@ -141,7 +126,7 @@ class App extends Component {
   signOut() {
     console.log("Sign out");
     this.setState({
-       newchannelName: '',
+      newchannelName: '',
          currentChannel: '',
          isSignIn: false,
          isOpenPopup: false,
@@ -154,14 +139,14 @@ class App extends Component {
              lastTime: '',
            }, ],
          },
-         channels: [],
     });
   }
 
-  onSend = (messages=[]) => {
+  onSend = (messages = [], leaveMessage=false) => {
     
-    if(this.isJoinChannel(this.state.currentChannel) === -1)
+    if (this.isJoinChannel(this.state.currentChannel) === -1 && !leaveMessage)
       return
+
     console.log(messages)
     messages[0]['status'] = false
     messages[0]['channelName'] = this.state.currentChannel
@@ -177,6 +162,7 @@ class App extends Component {
   saveMessage(message) {
     console.log("Save message");
   }
+
   
   //manage all websocket
   wsConnection() {
@@ -185,7 +171,7 @@ class App extends Component {
       let mes = JSON.parse(event.data)
       //console.log(mes.data.user)
       //console.log(message.data.type)
-      if (mes.type == 'message') {
+      if (mes.type === 'message') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
@@ -195,7 +181,16 @@ class App extends Component {
         this.setState((previousState) => ({
         messages: GiftedChat.append(previousState.messages, mes.data),
       }));}
-      if (mes.type == 'newMessage') {
+      if (mes.type == "initial") {
+        console.log(mes.data)
+        this.setState({joinedChannel:mes.data})
+        let nowState = this.state
+        nowState.user.joinedChannel = mes.data
+        this.setState(nowState)
+        console.log(this.state.user.joinedChannel)
+        return ([])
+      }
+      if (mes.type === 'newMessage') {
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
@@ -328,7 +323,7 @@ class App extends Component {
     message.push({
       id:'first',
       createdAt: new Date(),
-      text: this.state.user.name + ' join ' + this.state.currentChannel,
+      text: this.state.user.name + ' join ' + this.state.currentChannel + "!",
       user: this.state.user,
     })
     this.onSend(message)
@@ -340,11 +335,22 @@ class App extends Component {
   
   leaveChannel = () => {
     let aUser = this.state.user
+    let message = []
+    let leaveMessage = true
     let index = this.isJoinChannel(this.state.currentChannel)
-    aUser.joinedChannel.splice(index,1)
+    aUser.joinedChannel.splice(index, 1)
+    message.push({
+      id: aUser.name.concat('leave', this.state.currentChannel, "at", new Date().toString()),
+      createdAt: new Date(),
+      text: this.state.user.name + ' leave ' + this.state.currentChannel + "!",
+      user: aUser,
+    })
+    this.onSend(message, leaveMessage)
     this.setState({
       user:aUser
     })
+    //TODO
+    //when user press Leave -> send message type "message" to backend to update joined state
   }
 
   loadChatHistory = (channelName) => {
@@ -366,7 +372,9 @@ class App extends Component {
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
     if(indexJoin !== -1  && this.state.currentChannel !== channel.name) {
+      console.log("query")
       allMessage = this.loadChatHistory(channel.name)
+      console.log("send ch name to back",channel.name)
       let sendData = {
         "type":"changeChannel",
         "data": channel.name
