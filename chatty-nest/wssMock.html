@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Chatty ws mockup</title>
+    </head>
+
+    <script>
+        var sock = new WebSocket("localhost:4000");
+        sock.onopen = (event)=>{
+            aleart("socket connectted")
+        }
+    </script>
+
+</html>
