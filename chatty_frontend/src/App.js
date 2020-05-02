@@ -171,7 +171,8 @@ class App extends Component {
     
     if (this.isJoinChannel(this.state.currentChannel) === -1 && !leaveMessage)
       return
-
+    if (messages[0].text === "")
+      return
     console.log(messages)
     messages[0]['status'] = false
     messages[0]['channelName'] = this.state.currentChannel
@@ -192,6 +193,10 @@ class App extends Component {
       //console.log(mes.data.user)
       //console.log(message.data.type)
       if (mes.type === 'message') {
+        console.log("current channel is "+this.state.currentChannel);
+        let indexJoin = this.isJoinChannel(this.state.currentChannel)
+        if(indexJoin === -1)
+          return
         //mes.data.user.id = mes.data.user.name
         let allMessage = this.state.messages
         for(let i = allMessage.length - 1; i >= 0; i--) {
@@ -228,6 +233,8 @@ class App extends Component {
         //mes.data.user.id = mes.data.user.name
         let messageFromDB = mes.data
         let indexJoin = this.isJoinChannel(this.state.currentChannel)
+        if(indexJoin === -1)
+          return
         if (messageFromDB !== []) {
           for (let i = messageFromDB.length - 2; i >= 0; i--) {
             if (new Date(messageFromDB[i].createdAt).getTime() > new Date(this.state.user.joinedChannel[indexJoin].lastTime).getTime()) {
@@ -438,9 +445,6 @@ class App extends Component {
       newData.lastTime = new Date()
       aUser.joinedChannel.push(newData)
       aUser.joinedChannel.splice(index,1)
-      this.setState({
-        user: aUser
-      })
     }
     let indexJoin = this.isJoinChannel(channel.name)
     let allMessage = this.state.messages
@@ -460,6 +464,7 @@ class App extends Component {
     } 
     
     this.setState({
+      user: aUser,
       messages:allMessage,
       currentChannel: channel.name,
     })
