@@ -266,7 +266,9 @@ class App extends Component {
      
   }}
   componentDidMount() {
-    socket = new WebSocket("ws://localhost:80")
+	console.log("try connect")
+    //socket = new WebSocket("ws://172.18.0.5:80")
+	socket = new WebSocket("ws://localhost:80")
     socket.onopen = () => {
       var sendData = {
           "type":"debug",
